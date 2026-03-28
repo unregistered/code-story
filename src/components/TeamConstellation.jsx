@@ -4,6 +4,15 @@ import { Check, Clock, Plus, Pencil, X, Send, Undo2, ChevronDown, FileEdit, Tras
 import { AnimatePresence } from "framer-motion";
 import { REPOS } from "../data";
 
+function StoryText({ text }) {
+  if (!text.includes("**")) return text;
+  return text.split(/(\*\*.*?\*\*)/g).map((part, i) =>
+    part.startsWith("**") && part.endsWith("**")
+      ? <span key={i}>{part.slice(2, -2)}</span>
+      : <span key={i} className="font-light opacity-50">{part}</span>
+  );
+}
+
 const TICKET_STATUS_CONFIG = {
   MERGED: { badgeClass: "bg-[var(--color-sage)] text-white", label: "Merged" },
   "IN REVIEW": { badgeClass: "bg-[var(--color-warning)] text-white", label: "In Review" },
@@ -143,7 +152,7 @@ function PendingPostCard({ post, secondsRemaining, cancelled, onEdit, onCancel, 
       )}
 
       <div className="rounded-2xl border border-[color:rgba(26,24,22,0.06)] bg-[color:rgba(255,255,255,0.6)] p-5 shadow-sm">
-        <p className="text-base font-semibold leading-snug text-[var(--color-charcoal)]">{post.text}</p>
+        <p className="text-base font-semibold leading-snug text-[var(--color-charcoal)]"><StoryText text={post.text} /></p>
         <TicketCard ticket={post.ticket} />
       </div>
 
@@ -175,7 +184,7 @@ function PostedCard({ post, onRetract }) {
         <span className="rounded-md bg-[var(--color-sage)] px-2 py-0.5 text-[10px] font-extrabold uppercase text-white">Posted</span>
       </div>
       <div className="rounded-2xl border border-[color:rgba(26,24,22,0.06)] bg-[color:rgba(255,255,255,0.6)] p-5 shadow-sm">
-        <p className="text-base font-semibold leading-snug text-[var(--color-charcoal)]">{post.text}</p>
+        <p className="text-base font-semibold leading-snug text-[var(--color-charcoal)]"><StoryText text={post.text} /></p>
         <TicketCard ticket={post.ticket} />
       </div>
       <motion.button
@@ -200,7 +209,7 @@ function DraftPostCard({ post, onEdit, onDiscard, onRepost }) {
         Your update was retracted. Edit and re-post, or discard it.
       </p>
       <div className="rounded-2xl border border-[color:rgba(26,24,22,0.06)] bg-[color:rgba(255,255,255,0.6)] p-5 shadow-sm">
-        <p className="text-base font-semibold leading-snug text-[var(--color-charcoal)]">{post.text}</p>
+        <p className="text-base font-semibold leading-snug text-[var(--color-charcoal)]"><StoryText text={post.text} /></p>
         <TicketCard ticket={post.ticket} />
       </div>
       <div className="mt-5 flex gap-3">
@@ -315,7 +324,7 @@ function RecentDiffsFeed({ posts, postStatuses, onPost, onDismiss }) {
                     </div>
                   )}
                 </div>
-                <p className="text-[13px] font-semibold leading-snug text-[var(--color-charcoal)]">{post.text}</p>
+                <p className="text-[13px] font-semibold leading-snug text-[var(--color-charcoal)]"><StoryText text={post.text} /></p>
                 {post.ticket && (
                   <p className="mt-1.5 font-mono text-[11px] font-medium text-[color:rgba(26,24,22,0.4)]">{post.ticket.title}</p>
                 )}

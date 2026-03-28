@@ -171,9 +171,13 @@ function CubeFace({ story, stories, storyIndex }) {
           </div>
         </div>
       </div>
-      <div className="absolute inset-0 flex flex-col justify-center px-6">
+      <div className="absolute inset-0 flex flex-col justify-center px-6 pb-16">
         <h1 className="text-[2.5rem] font-black leading-[1.06] tracking-tighter text-[var(--color-charcoal)]">
-          {story.text}
+          {story.text.split(/(\*\*.*?\*\*)/g).map((part, i) =>
+            part.startsWith("**") && part.endsWith("**")
+              ? <span key={i}>{part.slice(2, -2)}</span>
+              : <span key={i} className="font-medium opacity-45">{part}</span>
+          )}
         </h1>
         <p className="mt-3 text-xs font-medium text-[color:rgba(26,24,22,0.3)]">
           Summarized by Minimax M2.7
@@ -523,9 +527,13 @@ export default function StoryViewer({ stories, startAuthorId, readStories = [], 
               </div>
             </div>
 
-            <div className="pointer-events-none absolute inset-0 flex flex-col justify-center px-6">
+            <div className="pointer-events-none absolute inset-0 flex flex-col justify-center px-6 pb-16">
               <h1 className="text-[2.5rem] font-black leading-[1.06] tracking-tighter text-[var(--color-charcoal)]">
-                {currentStory.text}
+                {currentStory.text.split(/(\*\*.*?\*\*)/g).map((part, i) =>
+                  part.startsWith("**") && part.endsWith("**")
+                    ? <span key={i}>{part.slice(2, -2)}</span>
+                    : <span key={i} className="font-medium opacity-45">{part}</span>
+                )}
               </h1>
               <p className="mt-3 text-xs font-medium text-[color:rgba(26,24,22,0.3)]">
                 Summarized by Minimax M2.7
