@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import TeamConstellation from "./components/TeamConstellation";
 import StoryViewer from "./components/StoryViewer";
 import PostUpdate from "./components/PostUpdate";
@@ -37,22 +37,20 @@ export default function App() {
       >
         <TeamConstellation onMemberTap={handleMemberTap} onEditPost={handleEditPost} />
 
-        <AnimatePresence mode="wait">
-          {view === "stories" && (
-            <StoryViewer
-              key={`stories-${startAuthorId}`}
-              startAuthorId={startAuthorId}
-              onClose={() => setView("home")}
-            />
-          )}
-          {view === "post" && (
-            <PostUpdate
-              prefill={postPrefill}
-              onClose={() => setView("home")}
-              onPosted={() => setView("home")}
-            />
-          )}
-        </AnimatePresence>
+        {view === "stories" && (
+          <StoryViewer
+            key={`stories-${startAuthorId}`}
+            startAuthorId={startAuthorId}
+            onClose={() => setView("home")}
+          />
+        )}
+        {view === "post" && (
+          <PostUpdate
+            prefill={postPrefill}
+            onClose={() => setView("home")}
+            onPosted={() => setView("home")}
+          />
+        )}
       </motion.div>
     </div>
   );

@@ -442,13 +442,9 @@ export default function StoryViewer({ startAuthorId, onClose }) {
   } : undefined;
 
   return (
-    <motion.div
+    <div
       ref={containerRef}
-      initial={{ scale: 0.92, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      exit={{ scale: 0.92, opacity: 0 }}
-      transition={{ duration: 0.2, ease: "easeOut" }}
-      className="absolute inset-0 z-50 overflow-hidden bg-[var(--color-app-bg)] will-change-transform"
+      className="absolute inset-0 z-50 overflow-hidden bg-[var(--color-app-bg)]"
       style={outerStyle}
     >
       {/* 3D cube container */}
@@ -492,26 +488,17 @@ export default function StoryViewer({ startAuthorId, onClose }) {
                 ))}
               </div>
               <div className="pointer-events-auto flex items-center justify-between">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={currentStory.id}
-                    initial={{ opacity: 0, x: -8 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="flex items-center gap-3"
-                  >
-                    <div className="h-10 w-10 overflow-hidden rounded-full border border-black/5 shadow-sm">
-                      <img src={currentStory.avatar} alt={currentStory.author} className="h-full w-full object-cover" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold leading-none text-[var(--color-charcoal)]">{currentStory.author}</p>
-                      <p className="mt-0.5 text-xs font-medium text-black/40">
-                        {currentStory.role} · {currentStory.time}
-                      </p>
-                    </div>
-                  </motion.div>
-                </AnimatePresence>
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 overflow-hidden rounded-full border border-black/5 shadow-sm">
+                    <img src={currentStory.avatar} alt={currentStory.author} className="h-full w-full object-cover" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold leading-none text-[var(--color-charcoal)]">{currentStory.author}</p>
+                    <p className="mt-0.5 text-xs font-medium text-black/40">
+                      {currentStory.role} · {currentStory.time}
+                    </p>
+                  </div>
+                </div>
                 <motion.button whileTap={{ scale: 0.9 }} onClick={onClose} className="flex h-11 w-11 items-center justify-center rounded-full bg-black/8 pointer-events-auto">
                   <X size={16} strokeWidth={2.5} className="text-black/60" />
                 </motion.button>
@@ -625,6 +612,6 @@ export default function StoryViewer({ startAuthorId, onClose }) {
           )}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
