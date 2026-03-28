@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Check, Clock, Plus, Pencil, X, Send, Undo2, ChevronDown, FileEdit, Trash2, HelpCircle } from "lucide-react";
+import { Check, Clock, Plus, Pencil, X, Send, Undo2, ChevronDown, FileEdit, Trash2, HelpCircle, Sparkles, MinusCircle, Settings } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import { REPOS } from "../data";
 
@@ -245,26 +245,73 @@ function EmptyPostCard({ onPost }) {
   );
 }
 
-export default function TeamConstellation({ repo, onRepoChange, onMemberTap, onEditPost }) {
-  const initialPostState = repo.pendingPost ? "pending" : repo.me ? "posted" : "empty";
+function RecentDiffsFeed({ posts }) {
+  if (!posts || posts.length === 0) return null;
+
+  const timeAgo = (ts) => {
+    const mins = Math.round((Date.now() - ts) / 60000);
+    if (mins < 60) return `${mins}m ago`;
+    return `${Math.round(mins / 60)}h ago`;
+  };
+
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-6 px-5">
+      <div className="mb-3 flex items-center gap-2">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-[color:rgba(26,24,22,0.4)]">Recent Diffs</span>
+      </div>
+      <div className="space-y-3">
+        {posts.map((post) => (
+          <div
+            key={post.id}
+            className="rounded-2xl border border-[color:rgba(26,24,22,0.06)] bg-[color:rgba(255,255,255,0.6)] p-4 shadow-sm"
+          >
+            <div className="mb-2 flex items-center gap-2">
+              {post.aiTag === "important" ? (
+                <span className="inline-flex items-center gap-1 rounded-md bg-[var(--color-sage)] px-2 py-0.5 text-[10px] font-extrabold uppercase text-white">
+                  <Sparkles size={10} /> Auto-posted
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 rounded-md bg-[color:rgba(26,24,22,0.08)] px-2 py-0.5 text-[10px] font-extrabold uppercase text-[color:rgba(26,24,22,0.45)]">
+                  <MinusCircle size={10} /> Small change
+                </span>
+              )}
+              <span className="text-[10px] font-medium text-[color:rgba(26,24,22,0.3)]">{timeAgo(post.landedAt)}</span>
+            </div>
+            <p className="text-[13px] font-semibold leading-snug text-[var(--color-charcoal)]">{post.text}</p>
+            {post.ticket && (
+              <p className="mt-1.5 font-mono text-[11px] font-medium text-[color:rgba(26,24,22,0.4)]">{post.ticket.title}</p>
+            )}
+          </div>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
+export default function TeamConstellation({ repo, readStories, allMembers, currentMeId, onSetMe, onResetData, onRepoChange, onMemberTap, onEditPost }) {
+  const [showSettings, setShowSettings] = useState(false);
+  const activePending = repo.pendingPosts?.find((p) => p.aiTag === "important" && !p.autoPosted && p.autoPostAt);
+  const otherPosts = repo.pendingPosts?.filter((p) => p !== activePending) || [];
+  const initialPostState = activePending ? "pending" : repo.me ? "posted" : "empty";
   const [postState, setPostState] = useState(initialPostState);
-  const [pendingPost, setPendingPost] = useState(repo.pendingPost);
+  const [pendingPost, setPendingPost] = useState(activePending);
   const [postedPost, setPostedPost] = useState(null);
   const [secondsRemaining, setSecondsRemaining] = useState(() =>
-    repo.pendingPost ? Math.max(0, Math.round((repo.pendingPost.autoPostAt - Date.now()) / 1000)) : 0
+    activePending ? Math.max(0, Math.round((activePending.autoPostAt - Date.now()) / 1000)) : 0
   );
   const [pendingCancelled, setPendingCancelled] = useState(false);
   const [showRepoDropdown, setShowRepoDropdown] = useState(false);
 
   // Reset state when repo changes
   useEffect(() => {
-    const newPostState = repo.pendingPost ? "pending" : repo.me ? "posted" : "empty";
+    const newActive = repo.pendingPosts?.find((p) => p.aiTag === "important" && !p.autoPosted && p.autoPostAt);
+    const newPostState = newActive ? "pending" : repo.me ? "posted" : "empty";
     setPostState(newPostState);
-    setPendingPost(repo.pendingPost);
+    setPendingPost(newActive);
     setPostedPost(null);
     setPendingCancelled(false);
     setSecondsRemaining(
-      repo.pendingPost ? Math.max(0, Math.round((repo.pendingPost.autoPostAt - Date.now()) / 1000)) : 0
+      newActive ? Math.max(0, Math.round((newActive.autoPostAt - Date.now()) / 1000)) : 0
     );
   }, [repo.id]);
 
@@ -346,17 +393,28 @@ export default function TeamConstellation({ repo, onRepoChange, onMemberTap, onE
     <div className="flex h-full flex-col bg-[var(--color-app-bg)]">
       {/* Header */}
       <div className="shrink-0 px-6 pt-12 pb-2">
-        <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-[color:rgba(26,24,22,0.4)]">
-          Friday, Mar 28
-        </p>
-        <button
-          type="button"
-          className="flex items-center gap-1 bg-transparent p-0"
-          onClick={() => setShowRepoDropdown((v) => !v)}
-        >
-          <h1 className="text-2xl font-black tracking-tighter text-[var(--color-charcoal)]">{repo.name}</h1>
-          <ChevronDown size={18} className="mt-0.5 text-[var(--color-charcoal)]" />
-        </button>
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-[color:rgba(26,24,22,0.4)]">
+              Friday, Mar 28
+            </p>
+            <button
+              type="button"
+              className="flex items-center gap-1 bg-transparent p-0"
+              onClick={() => setShowRepoDropdown((v) => !v)}
+            >
+              <h1 className="text-2xl font-black tracking-tighter text-[var(--color-charcoal)]">{repo.name}</h1>
+              <ChevronDown size={18} className="mt-0.5 text-[var(--color-charcoal)]" />
+            </button>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowSettings(true)}
+            className="mt-1 flex h-9 w-9 items-center justify-center rounded-full bg-[color:rgba(0,0,0,0.06)]"
+          >
+            <Settings size={16} className="text-[color:rgba(26,24,22,0.5)]" />
+          </button>
+        </div>
         {showRepoDropdown && (
           <motion.div
             initial={{ opacity: 0, y: -4 }}
@@ -399,12 +457,22 @@ export default function TeamConstellation({ repo, onRepoChange, onMemberTap, onE
           {repo.me && (
             <StoryBubble member={repo.me} isMe postState={postState} hasRelevant={false} onClick={handleBubbleTap} />
           )}
-          {repo.team.map((member) => {
-            const hasRelevant = repo.stories.some(s => s.authorId === member.id && s.relevant);
-            return (
+          {[...repo.team]
+            .map((member) => {
+              const memberStories = repo.stories.filter(s => s.authorId === member.id);
+              const allRead = memberStories.length > 0 && memberStories.every(s => readStories.includes(s.id));
+              const effectiveMember = allRead && member.status === "unread" ? { ...member, status: "read" } : member;
+              const hasRelevant = repo.stories.some(s => s.authorId === member.id && s.relevant && !readStories.includes(s.id));
+              return { member: effectiveMember, hasRelevant, allRead };
+            })
+            .sort((a, b) => {
+              if (a.allRead !== b.allRead) return a.allRead - b.allRead;
+              if (a.hasRelevant !== b.hasRelevant) return b.hasRelevant - a.hasRelevant;
+              return 0;
+            })
+            .map(({ member, hasRelevant }) => (
               <StoryBubble key={member.id} member={member} isMe={false} postState="empty" hasRelevant={hasRelevant} onClick={handleBubbleTap} />
-            );
-          })}
+            ))}
         </div>
       </div>
 
@@ -438,6 +506,7 @@ export default function TeamConstellation({ repo, onRepoChange, onMemberTap, onE
             {postState === "empty" && (
               <EmptyPostCard onPost={handlePost} />
             )}
+            <RecentDiffsFeed posts={otherPosts} />
           </>
         ) : (
           <div className="flex flex-col items-center px-5 pt-8">
@@ -447,6 +516,78 @@ export default function TeamConstellation({ repo, onRepoChange, onMemberTap, onE
           </div>
         )}
       </div>
+
+      {/* Settings panel */}
+      <AnimatePresence>
+        {showSettings && (
+          <motion.div
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 280 }}
+            className="absolute inset-0 z-50 flex flex-col bg-[var(--color-app-bg)]"
+          >
+            <div className="flex shrink-0 items-center justify-between px-5 pt-14 pb-4">
+              <h2 className="text-xl font-black tracking-tight text-[var(--color-charcoal)]">Settings</h2>
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={() => setShowSettings(false)}
+                className="flex h-11 w-11 items-center justify-center rounded-full bg-[color:rgba(0,0,0,0.08)]"
+              >
+                <X size={16} strokeWidth={2.5} className="text-black/60" />
+              </motion.button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-5 pb-8">
+              <div className="mb-6">
+                <label className="mb-3 block text-xs font-bold uppercase tracking-widest text-[color:rgba(26,24,22,0.4)]">
+                  Who are you?
+                </label>
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={() => { onSetMe(null); setShowSettings(false); }}
+                    className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left ${
+                      currentMeId === null
+                        ? "border-[var(--color-charcoal)] bg-[var(--color-charcoal)] text-white"
+                        : "border-[color:rgba(26,24,22,0.08)] bg-[color:rgba(255,255,255,0.6)] text-[var(--color-charcoal)]"
+                    }`}
+                  >
+                    <span className="text-sm font-bold">Nobody (observer)</span>
+                    {currentMeId === null && <Check size={14} className="ml-auto" />}
+                  </button>
+                  {allMembers.map((m) => (
+                    <button
+                      key={m.id}
+                      type="button"
+                      onClick={() => { onSetMe(m.id); setShowSettings(false); }}
+                      className={`flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left ${
+                        currentMeId === m.id
+                          ? "border-[var(--color-charcoal)] bg-[var(--color-charcoal)] text-white"
+                          : "border-[color:rgba(26,24,22,0.08)] bg-[color:rgba(255,255,255,0.6)] text-[var(--color-charcoal)]"
+                      }`}
+                    >
+                      <img src={m.avatar} alt={m.name} className="h-8 w-8 rounded-full bg-[var(--color-faint)] object-cover" />
+                      <span className="text-sm font-bold">{m.name}</span>
+                      {currentMeId === m.id && <Check size={14} className="ml-auto" />}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="border-t border-[color:rgba(26,24,22,0.06)] pt-6">
+                <motion.button
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => { onResetData(); setShowSettings(false); }}
+                  className="flex w-full items-center justify-center gap-2 rounded-[22px] border border-[var(--color-danger)] py-[14px] text-sm font-bold text-[var(--color-danger)]"
+                >
+                  <Trash2 size={14} /> Reset All Local Data
+                </motion.button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

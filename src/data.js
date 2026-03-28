@@ -93,12 +93,38 @@ const OPENCLAW_ME = {
   status: "posted",
 };
 
-const OPENCLAW_PENDING_POST = {
-  text: "Matrix direct messages now route to the correct room — fixes misdelivered outbound messages in federated setups.",
-  ticket: { title: "fix(matrix): align outbound direct-room selection", status: "MERGED" },
-  landedAt: Date.now() - 2 * 60 * 1000,
-  autoPostAt: Date.now() + 8 * 60 * 1000,
-};
+const OPENCLAW_PENDING_POSTS = [
+  {
+    id: 1,
+    text: "Matrix direct messages now route to the correct room — fixes misdelivered outbound messages in federated setups.",
+    ticket: { title: "fix(matrix): align outbound direct-room selection", status: "MERGED" },
+    landedAt: Date.now() - 2 * 60 * 1000,
+    autoPostAt: Date.now() + 8 * 60 * 1000,
+    aiTag: "important",
+  },
+  {
+    id: 2,
+    text: "Config validation now catches missing API keys at startup instead of failing silently at runtime.",
+    ticket: { title: "feat(config): validate required env vars on boot", status: "MERGED" },
+    landedAt: Date.now() - 18 * 60 * 1000,
+    aiTag: "important",
+    autoPosted: true,
+  },
+  {
+    id: 3,
+    text: "Fixed a typo in the retry-logic doc — \"expontential\" → \"exponential\".",
+    ticket: { title: "docs: fix typo in retry backoff section", status: "MERGED" },
+    landedAt: Date.now() - 35 * 60 * 1000,
+    aiTag: "small",
+  },
+  {
+    id: 4,
+    text: "Removed unused import and aligned indentation in the webhook handler.",
+    ticket: { title: "chore: clean up webhook handler lint warnings", status: "MERGED" },
+    landedAt: Date.now() - 52 * 60 * 1000,
+    aiTag: "small",
+  },
+];
 
 const OPENCLAW_STORIES = [
   // Robin Waslander — 11 PRs
@@ -782,7 +808,7 @@ export const REPOS = [
     fullName: "openclaw/openclaw",
     team: OPENCLAW_TEAM,
     me: OPENCLAW_ME,
-    pendingPost: OPENCLAW_PENDING_POST,
+    pendingPosts: OPENCLAW_PENDING_POSTS,
     stories: OPENCLAW_STORIES,
   },
   {
@@ -791,7 +817,7 @@ export const REPOS = [
     fullName: "MiniMax-AI/skills",
     team: MINIMAX_TEAM,
     me: null,
-    pendingPost: null,
+    pendingPosts: [],
     stories: MINIMAX_STORIES,
   },
   {
@@ -800,7 +826,7 @@ export const REPOS = [
     fullName: "unregistered/code-story",
     team: EAZO_TEAM,
     me: null,
-    pendingPost: null,
+    pendingPosts: [],
     stories: EAZO_STORIES,
   },
 ];

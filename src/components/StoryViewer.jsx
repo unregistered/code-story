@@ -184,7 +184,7 @@ function CubeFace({ story, stories, storyIndex }) {
   );
 }
 
-export default function StoryViewer({ stories, startAuthorId, onClose }) {
+export default function StoryViewer({ stories, startAuthorId, readStories = [], onClose, onView }) {
   // Group stories by author, preserving first-appearance order
   const storyGroups = useMemo(() => {
     const groups = [];
@@ -203,8 +203,22 @@ export default function StoryViewer({ stories, startAuthorId, onClose }) {
     return idx >= 0 ? idx : 0;
   }, [storyGroups, startAuthorId]);
 
+  const initialStoryIndex = useMemo(() => {
+    const group = storyGroups[initialPersonIndex];
+    if (!group) return 0;
+    const firstUnread = group.findIndex(s => !readStories.includes(s.id));
+    return firstUnread >= 0 ? firstUnread : 0;
+  }, [storyGroups, initialPersonIndex, readStories]);
+
+  const readSet = useMemo(() => new Set(readStories), [readStories]);
+
+  const firstUnreadIn = useCallback((group) => {
+    const idx = group.findIndex(s => !readSet.has(s.id));
+    return idx >= 0 ? idx : 0;
+  }, [readSet]);
+
   const [personIndex, setPersonIndex] = useState(initialPersonIndex);
-  const [storyIndex, setStoryIndex] = useState(0);
+  const [storyIndex, setStoryIndex] = useState(initialStoryIndex);
   const [floatingReactions, setFloatingReactions] = useState([]);
   const [reactionCounts, setReactionCounts] = useState(
     stories.reduce((accumulator, story) => ({
@@ -231,6 +245,10 @@ export default function StoryViewer({ stories, startAuthorId, onClose }) {
   const currentStory = currentGroup[storyIndex];
 
   useEffect(() => {
+    onView?.(currentStory.id);
+  }, [personIndex, storyIndex]);
+
+  useEffect(() => {
     if (containerRef.current) {
       skipTransitionRef.current = true;
       setContainerWidth(containerRef.current.offsetWidth);
@@ -245,8 +263,9 @@ export default function StoryViewer({ stories, startAuthorId, onClose }) {
     if (storyIndex < currentGroup.length - 1) {
       setStoryIndex(s => s + 1);
     } else if (personIndex < storyGroups.length - 1) {
+      const nextGroup = storyGroups[personIndex + 1];
       setPersonIndex(p => p + 1);
-      setStoryIndex(0);
+      setStoryIndex(firstUnreadIn(nextGroup));
     } else {
       onClose?.();
       return;
@@ -367,8 +386,9 @@ export default function StoryViewer({ stories, startAuthorId, onClose }) {
           const duration = Math.max(250, remaining * 1000);
           setTimeout(() => {
             skipTransitionRef.current = true;
-            setPersonIndex(p => goingNext ? p + 1 : p - 1);
-            setStoryIndex(0);
+            const nextIdx = goingNext ? personIndex + 1 : personIndex - 1;
+            setPersonIndex(nextIdx);
+            setStoryIndex(firstUnreadIn(storyGroups[nextIdx]));
             setCubeAngle(0);
             setIsAnimating(false);
             setIsDragging(false);
