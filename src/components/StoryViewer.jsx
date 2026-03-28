@@ -1,10 +1,20 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, GitPullRequest, GitMerge, Lock, MessageCircle, Flame, Eye, Hand, CircleAlert, Sparkles, Clock, Target, MousePointerClick, Zap } from "lucide-react";
+import { X, GitPullRequest, GitMerge, Lock, MessageCircle, Flame, Eye, Hand, CircleAlert, Sparkles, Target, Pointer, Zap, FileText, Bug, Settings, Bell, Calendar } from "lucide-react";
 
 const AUTO_ADVANCE_DELAY = 8000;
 const FLOAT_LIFETIME = 1300;
 const CUBE_TRANSITION = "transform 1s cubic-bezier(.25,.1,.25,1)";
+
+function formatTimeAgo(ts) {
+  const diff = Math.max(0, Date.now() - ts);
+  const minutes = Math.round(diff / 60000);
+  if (minutes < 60) return `${minutes || 1}m ago`;
+  const hours = Math.round(diff / 3600000);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.round(diff / 86400000);
+  return `${days}d ago`;
+}
 
 const PR_STATUS_CONFIG = {
   MERGED: {
@@ -40,70 +50,107 @@ const REACTION_CONFIG = {
 };
 
 const ONBOARDING_ILLUSTRATIONS = {
-  // Slide 1: Clock ticks then X slams in to replace it
+  // Slide 1: Chat bubbles appear then pop one by one — only one survives
   "onb-1": () => (
-    <div className="flex items-center justify-center gap-5" style={{ height: 80 }}>
-      <motion.div
-        initial={{ opacity: 0, rotate: -30 }}
-        animate={{ opacity: 0.5, rotate: 0 }}
-        transition={{ duration: 0.5, type: "spring" }}
-      >
-        <Clock size={44} strokeWidth={1.5} className="text-[var(--color-charcoal)]" />
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 0.7, y: 0 }}
-        transition={{ delay: 0.5, duration: 0.25, type: "spring", stiffness: 400, damping: 12 }}
-      >
-        <X size={32} strokeWidth={3} className="text-[var(--color-danger)]" />
-      </motion.div>
+    <div className="flex items-center justify-center gap-2.5" style={{ height: 80 }}>
+      {[
+        { size: 22, pop: [0, 0.12, 0.42, 0.48, 0.5] },
+        { size: 26, pop: [0, 0.12, 0.52, 0.58, 0.6] },
+        { size: 18, survivor: true },
+        { size: 24, pop: [0, 0.12, 0.62, 0.68, 0.7] },
+        { size: 20, pop: [0, 0.12, 0.72, 0.78, 0.8] },
+      ].map((b, i) => (
+        <motion.div
+          key={i}
+          initial={{ opacity: 0, scale: 0 }}
+          animate={b.survivor ? {
+            opacity: [0, 0.55, 0.55],
+            scale: [0, 1, 1],
+          } : {
+            opacity: [0, 0.4, 0.4, 0, 0],
+            scale: [0, 1, 1.3, 0, 0],
+          }}
+          transition={{
+            delay: i * 0.1,
+            duration: 3.5,
+            times: b.survivor ? [0, 0.12, 1] : b.pop,
+            repeat: Infinity,
+            repeatDelay: 1,
+          }}
+        >
+          <MessageCircle
+            size={b.size}
+            strokeWidth={1.5}
+            className={b.survivor ? "text-[var(--color-sage)]" : "text-[var(--color-charcoal)]"}
+          />
+        </motion.div>
+      ))}
     </div>
   ),
-  // Slide 2: PR fades in, then transforms — arrow sweeps across, sparkles bloom at end
+  // Slide 2: PR crossfades into Sparkles via Zap flash — transformation
   "onb-2": () => (
-    <div className="flex items-center justify-center gap-3" style={{ height: 80 }}>
+    <div className="relative flex items-center justify-center" style={{ height: 80 }}>
       <motion.div
-        initial={{ opacity: 0.5 }}
-        animate={{ opacity: [0.5, 0.3] }}
-        transition={{ delay: 0.6, duration: 0.3 }}
+        className="absolute"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: [0, 0.55, 0.55, 0, 0, 0] }}
+        transition={{ duration: 3, times: [0, 0.1, 0.35, 0.45, 0.5, 1], repeat: Infinity }}
       >
-        <GitPullRequest size={36} strokeWidth={1.5} className="text-[var(--color-charcoal)]" />
+        <GitPullRequest size={44} strokeWidth={1.5} className="text-[var(--color-charcoal)]" />
       </motion.div>
       <motion.div
-        initial={{ opacity: 0, x: -16 }}
-        animate={{ opacity: 0.6, x: 0 }}
-        transition={{ delay: 0.4, duration: 0.4 }}
+        className="absolute"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: [0, 0, 0, 0.8, 0, 0] }}
+        transition={{ duration: 3, times: [0, 0.35, 0.4, 0.45, 0.55, 1], repeat: Infinity }}
       >
-        <Zap size={24} strokeWidth={2} className="text-[var(--color-warning)]" />
+        <Zap size={32} strokeWidth={2} className="text-[var(--color-warning)]" />
       </motion.div>
       <motion.div
-        initial={{ opacity: 0, scale: 0.3 }}
-        animate={{ opacity: 0.6, scale: 1 }}
-        transition={{ delay: 0.8, duration: 0.5, type: "spring" }}
+        className="absolute"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: [0, 0, 0, 0.6, 0.6, 0], scale: [0.5, 0.5, 0.5, 1, 1, 1] }}
+        transition={{ duration: 3, times: [0, 0.45, 0.5, 0.6, 0.85, 1], repeat: Infinity }}
       >
-        <Sparkles size={36} strokeWidth={1.5} className="text-[var(--color-sage)]" />
-      </motion.div>
-    </div>
-  ),
-  // Slide 3: Target scales in, then sparkles orbit to the side
-  "onb-3": () => (
-    <div className="flex items-center justify-center gap-4" style={{ height: 80 }}>
-      <motion.div
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 0.55, scale: 1 }}
-        transition={{ duration: 0.6, type: "spring", stiffness: 200 }}
-      >
-        <Target size={48} strokeWidth={1.5} className="text-[var(--color-charcoal)]" />
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0, x: 12 }}
-        animate={{ opacity: [0, 0.6, 0.6, 0], x: [12, 0, 0, -8] }}
-        transition={{ delay: 0.6, duration: 2.5, repeat: Infinity, repeatDelay: 1 }}
-      >
-        <Sparkles size={24} strokeWidth={1.5} className="text-[var(--color-relevant)]" />
+        <Sparkles size={44} strokeWidth={1.5} className="text-[var(--color-sage)]" />
       </motion.div>
     </div>
   ),
+  // Slide 3: Busy icon grid — 3 highlight in purple, rest fade out
+  "onb-3": () => {
+    const icons = [
+      { Icon: GitPullRequest, highlight: true },
+      { Icon: FileText, highlight: false },
+      { Icon: Bug, highlight: false },
+      { Icon: MessageCircle, highlight: true },
+      { Icon: Settings, highlight: false },
+      { Icon: Bell, highlight: false },
+      { Icon: Flame, highlight: false },
+      { Icon: GitMerge, highlight: true },
+      { Icon: Calendar, highlight: false },
+    ];
+    return (
+      <div className="flex flex-wrap items-center justify-center gap-3" style={{ height: 88, maxWidth: 200, margin: "0 auto" }}>
+        {icons.map(({ Icon, highlight }, i) => (
+          <motion.div
+            key={i}
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{
+              opacity: highlight ? [0, 0.45, 0.45, 0.7, 0.7] : [0, 0.45, 0.45, 0.1, 0.1],
+              scale: highlight ? [0.5, 1, 1, 1.15, 1.1] : [0.5, 1, 1, 0.85, 0.85],
+            }}
+            transition={{ delay: i * 0.06, duration: 3, times: [0, 0.15, 0.4, 0.55, 1], repeat: Infinity, repeatDelay: 1.5 }}
+          >
+            <Icon
+              size={22}
+              strokeWidth={1.5}
+              className={highlight ? "text-[var(--color-relevant)]" : "text-[var(--color-charcoal)]"}
+            />
+          </motion.div>
+        ))}
+      </div>
+    );
+  },
   // Slide 4: Single tap icon with a press bounce
   "onb-4": () => (
     <div className="flex items-center justify-center" style={{ height: 80 }}>
@@ -112,7 +159,7 @@ const ONBOARDING_ILLUSTRATIONS = {
         animate={{ opacity: 0.55, y: 0, scale: [1, 1, 0.9, 1, 1] }}
         transition={{ duration: 2, times: [0, 0.4, 0.5, 0.6, 1], repeat: Infinity, repeatDelay: 1 }}
       >
-        <MousePointerClick size={48} strokeWidth={1.5} className="text-[var(--color-charcoal)]" />
+        <Pointer size={48} strokeWidth={1.5} className="text-[var(--color-charcoal)]" />
       </motion.div>
     </div>
   ),
