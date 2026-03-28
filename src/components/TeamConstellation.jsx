@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Check, Clock, Plus, Pencil, X, Send, Undo2 } from "lucide-react";
-import { TEAM, ME, PENDING_POST } from "../data";
+import { Check, Clock, Plus, Pencil, X, Send, Undo2, ChevronDown } from "lucide-react";
+import { REPOS } from "../data";
 
 const TICKET_STATUS_CONFIG = {
   MERGED: { badgeClass: "bg-[var(--color-sage)] text-white", label: "Merged" },
@@ -178,15 +178,28 @@ function EmptyPostCard({ onPost }) {
   );
 }
 
-export default function TeamConstellation({ onMemberTap, onEditPost }) {
-  const [postState, setPostState] = useState("pending"); // "pending" | "posted" | "empty"
-  const [pendingPost, setPendingPost] = useState(PENDING_POST);
+export default function TeamConstellation({ repo, onRepoChange, onMemberTap, onEditPost }) {
+  const initialPostState = repo.pendingPost ? "pending" : repo.me ? "posted" : "empty";
+  const [postState, setPostState] = useState(initialPostState);
+  const [pendingPost, setPendingPost] = useState(repo.pendingPost);
   const [postedPost, setPostedPost] = useState(null);
   const [secondsRemaining, setSecondsRemaining] = useState(() =>
-    Math.max(0, Math.round((PENDING_POST.autoPostAt - Date.now()) / 1000))
+    repo.pendingPost ? Math.max(0, Math.round((repo.pendingPost.autoPostAt - Date.now()) / 1000)) : 0
   );
+  const [showRepoDropdown, setShowRepoDropdown] = useState(false);
 
-  const missingCount = TEAM.filter((m) => m.status === "missing").length;
+  // Reset state when repo changes
+  useEffect(() => {
+    const newPostState = repo.pendingPost ? "pending" : repo.me ? "posted" : "empty";
+    setPostState(newPostState);
+    setPendingPost(repo.pendingPost);
+    setPostedPost(null);
+    setSecondsRemaining(
+      repo.pendingPost ? Math.max(0, Math.round((repo.pendingPost.autoPostAt - Date.now()) / 1000)) : 0
+    );
+  }, [repo.id]);
+
+  const missingCount = repo.team.filter((m) => m.status === "missing").length;
 
   useEffect(() => {
     if (postState !== "pending") return;
@@ -249,7 +262,40 @@ export default function TeamConstellation({ onMemberTap, onEditPost }) {
         <p className="mb-1 text-[10px] font-bold uppercase tracking-widest text-[color:rgba(26,24,22,0.4)]">
           Friday, Mar 28
         </p>
-        <h1 className="text-2xl font-black tracking-tighter text-[var(--color-charcoal)]">Openclaw</h1>
+        <button
+          type="button"
+          className="flex items-center gap-1 bg-transparent p-0"
+          onClick={() => setShowRepoDropdown((v) => !v)}
+        >
+          <h1 className="text-2xl font-black tracking-tighter text-[var(--color-charcoal)]">{repo.name}</h1>
+          <ChevronDown size={18} className="mt-0.5 text-[var(--color-charcoal)]" />
+        </button>
+        {showRepoDropdown && (
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="absolute z-50 mt-1 min-w-[180px] overflow-hidden rounded-xl border border-[color:rgba(26,24,22,0.08)] bg-white shadow-lg"
+          >
+            {REPOS.map((r) => (
+              <button
+                key={r.id}
+                type="button"
+                className={`flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-semibold ${
+                  r.id === repo.id
+                    ? "bg-[var(--color-faint)] text-[var(--color-charcoal)]"
+                    : "text-[color:rgba(26,24,22,0.6)] hover:bg-[var(--color-faint)]"
+                }`}
+                onClick={() => {
+                  onRepoChange(r.id);
+                  setShowRepoDropdown(false);
+                }}
+              >
+                {r.name}
+                {r.id === repo.id && <Check size={14} className="ml-auto" />}
+              </button>
+            ))}
+          </motion.div>
+        )}
       </div>
 
       {missingCount > 0 && (
@@ -263,8 +309,10 @@ export default function TeamConstellation({ onMemberTap, onEditPost }) {
       {/* Story bubble row */}
       <div className="hide-scrollbar shrink-0 overflow-x-auto px-5 pt-5 pb-4">
         <div className="flex gap-4">
-          <StoryBubble member={ME} isMe postState={postState} onClick={handleBubbleTap} />
-          {TEAM.map((member) => (
+          {repo.me && (
+            <StoryBubble member={repo.me} isMe postState={postState} onClick={handleBubbleTap} />
+          )}
+          {repo.team.map((member) => (
             <StoryBubble key={member.id} member={member} isMe={false} postState="empty" onClick={handleBubbleTap} />
           ))}
         </div>
@@ -274,20 +322,30 @@ export default function TeamConstellation({ onMemberTap, onEditPost }) {
 
       {/* Main content area */}
       <div className="flex-1 overflow-y-auto pb-[max(2.5rem,env(safe-area-inset-bottom))]">
-        {postState === "pending" && pendingPost && (
-          <PendingPostCard
-            post={pendingPost}
-            secondsRemaining={secondsRemaining}
-            onEdit={handleEdit}
-            onCancel={handleCancel}
-            onPostNow={handlePostNow}
-          />
-        )}
-        {postState === "posted" && postedPost && (
-          <PostedCard post={postedPost} onRetract={handleRetract} />
-        )}
-        {postState === "empty" && (
-          <EmptyPostCard onPost={handlePost} />
+        {repo.me ? (
+          <>
+            {postState === "pending" && pendingPost && (
+              <PendingPostCard
+                post={pendingPost}
+                secondsRemaining={secondsRemaining}
+                onEdit={handleEdit}
+                onCancel={handleCancel}
+                onPostNow={handlePostNow}
+              />
+            )}
+            {postState === "posted" && postedPost && (
+              <PostedCard post={postedPost} onRetract={handleRetract} />
+            )}
+            {postState === "empty" && (
+              <EmptyPostCard onPost={handlePost} />
+            )}
+          </>
+        ) : (
+          <div className="flex flex-col items-center px-5 pt-8">
+            <p className="text-sm font-medium text-[color:rgba(26,24,22,0.4)]">
+              Tap a teammate to view their updates
+            </p>
+          </div>
         )}
       </div>
     </div>

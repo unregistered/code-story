@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, GitPullRequest, GitMerge, Lock, MessageCircle, Flame, Eye, Hand, CircleAlert } from "lucide-react";
-import { STORIES } from "../data";
 
 const AUTO_ADVANCE_DELAY = 8000;
 const FLOAT_LIFETIME = 1300;
@@ -185,19 +184,19 @@ function CubeFace({ story, stories, storyIndex }) {
   );
 }
 
-export default function StoryViewer({ startAuthorId, onClose }) {
+export default function StoryViewer({ stories, startAuthorId, onClose }) {
   // Group stories by author, preserving first-appearance order
   const storyGroups = useMemo(() => {
     const groups = [];
     const seen = new Set();
-    for (const story of STORIES) {
+    for (const story of stories) {
       if (!seen.has(story.authorId)) {
         seen.add(story.authorId);
-        groups.push(STORIES.filter(s => s.authorId === story.authorId));
+        groups.push(stories.filter(s => s.authorId === story.authorId));
       }
     }
     return groups;
-  }, []);
+  }, [stories]);
 
   const initialPersonIndex = useMemo(() => {
     const idx = storyGroups.findIndex(g => g[0].authorId === startAuthorId);
@@ -208,7 +207,7 @@ export default function StoryViewer({ startAuthorId, onClose }) {
   const [storyIndex, setStoryIndex] = useState(0);
   const [floatingReactions, setFloatingReactions] = useState([]);
   const [reactionCounts, setReactionCounts] = useState(
-    STORIES.reduce((accumulator, story) => ({
+    stories.reduce((accumulator, story) => ({
       ...accumulator,
       [story.id]: { ...story.reactions },
     }), {})
