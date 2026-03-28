@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, GitPullRequest, GitMerge, Lock, MessageCircle, Flame, Eye, Hand, CircleAlert, Sparkles } from "lucide-react";
+import { X, GitPullRequest, GitMerge, Lock, MessageCircle, Flame, Eye, Hand, CircleAlert, Sparkles, Clock, Target, MousePointerClick, Zap } from "lucide-react";
 
 const AUTO_ADVANCE_DELAY = 8000;
 const FLOAT_LIFETIME = 1300;
@@ -38,6 +38,95 @@ const REACTION_CONFIG = {
   eyes: { icon: Eye, floatIcon: Eye, accent: "text-[var(--color-charcoal)]" },
   hand: { icon: Hand, floatIcon: Hand, accent: "text-[var(--color-charcoal)]" },
 };
+
+const ONBOARDING_ILLUSTRATIONS = {
+  // Slide 1: Clock ticks then X slams in to replace it
+  "onb-1": () => (
+    <div className="flex items-center justify-center gap-5" style={{ height: 80 }}>
+      <motion.div
+        initial={{ opacity: 0, rotate: -30 }}
+        animate={{ opacity: 0.5, rotate: 0 }}
+        transition={{ duration: 0.5, type: "spring" }}
+      >
+        <Clock size={44} strokeWidth={1.5} className="text-[var(--color-charcoal)]" />
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 0.7, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.25, type: "spring", stiffness: 400, damping: 12 }}
+      >
+        <X size={32} strokeWidth={3} className="text-[var(--color-danger)]" />
+      </motion.div>
+    </div>
+  ),
+  // Slide 2: PR fades in, then transforms — arrow sweeps across, sparkles bloom at end
+  "onb-2": () => (
+    <div className="flex items-center justify-center gap-3" style={{ height: 80 }}>
+      <motion.div
+        initial={{ opacity: 0.5 }}
+        animate={{ opacity: [0.5, 0.3] }}
+        transition={{ delay: 0.6, duration: 0.3 }}
+      >
+        <GitPullRequest size={36} strokeWidth={1.5} className="text-[var(--color-charcoal)]" />
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, x: -16 }}
+        animate={{ opacity: 0.6, x: 0 }}
+        transition={{ delay: 0.4, duration: 0.4 }}
+      >
+        <Zap size={24} strokeWidth={2} className="text-[var(--color-warning)]" />
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.3 }}
+        animate={{ opacity: 0.6, scale: 1 }}
+        transition={{ delay: 0.8, duration: 0.5, type: "spring" }}
+      >
+        <Sparkles size={36} strokeWidth={1.5} className="text-[var(--color-sage)]" />
+      </motion.div>
+    </div>
+  ),
+  // Slide 3: Target scales in, then sparkles orbit to the side
+  "onb-3": () => (
+    <div className="flex items-center justify-center gap-4" style={{ height: 80 }}>
+      <motion.div
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 0.55, scale: 1 }}
+        transition={{ duration: 0.6, type: "spring", stiffness: 200 }}
+      >
+        <Target size={48} strokeWidth={1.5} className="text-[var(--color-charcoal)]" />
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, x: 12 }}
+        animate={{ opacity: [0, 0.6, 0.6, 0], x: [12, 0, 0, -8] }}
+        transition={{ delay: 0.6, duration: 2.5, repeat: Infinity, repeatDelay: 1 }}
+      >
+        <Sparkles size={24} strokeWidth={1.5} className="text-[var(--color-relevant)]" />
+      </motion.div>
+    </div>
+  ),
+  // Slide 4: Single tap icon with a press bounce
+  "onb-4": () => (
+    <div className="flex items-center justify-center" style={{ height: 80 }}>
+      <motion.div
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 0.55, y: 0, scale: [1, 1, 0.9, 1, 1] }}
+        transition={{ duration: 2, times: [0, 0.4, 0.5, 0.6, 1], repeat: Infinity, repeatDelay: 1 }}
+      >
+        <MousePointerClick size={48} strokeWidth={1.5} className="text-[var(--color-charcoal)]" />
+      </motion.div>
+    </div>
+  ),
+};
+
+function OnboardingIllustration({ storyId }) {
+  const Illustration = ONBOARDING_ILLUSTRATIONS[storyId];
+  if (!Illustration) return null;
+  return (
+    <div className="mb-5">
+      <Illustration />
+    </div>
+  );
+}
 
 function AttachedCardStatic({ story }) {
   if (story.pr) {
@@ -167,7 +256,7 @@ function CubeFace({ story, stories, storyIndex }) {
           </div>
           <div>
             <p className="text-sm font-bold leading-none text-[var(--color-charcoal)]">{story.author}</p>
-            <p className="mt-0.5 text-xs font-medium text-black/40">{story.role} · {story.time}</p>
+            <p className="mt-0.5 text-xs font-medium text-black/40">{story.role} · {formatTimeAgo(story.time)}</p>
           </div>
         </div>
       </div>
@@ -522,13 +611,14 @@ export default function StoryViewer({ stories, startAuthorId, readStories = [], 
                 <div>
                   <p className="text-sm font-bold leading-none text-[var(--color-charcoal)]">{currentStory.author}</p>
                   <p className="mt-0.5 text-xs font-medium text-black/40">
-                    {onboarding ? currentStory.role : `${currentStory.role} · ${currentStory.time}`}
+                    {onboarding ? currentStory.role : `${currentStory.role} · ${formatTimeAgo(currentStory.time)}`}
                   </p>
                 </div>
               </div>
             </div>
 
             <div className="pointer-events-none absolute inset-0 flex flex-col justify-center px-6 pb-16">
+              {onboarding && <OnboardingIllustration storyId={currentStory.id} />}
               <h1 className="text-[2.5rem] font-black leading-[1.06] tracking-tighter text-[var(--color-charcoal)]">
                 {currentStory.text.split(/(\*\*.*?\*\*)/g).map((part, i) =>
                   part.startsWith("**") && part.endsWith("**")

@@ -134,7 +134,7 @@ const OPENCLAW_STORIES = [
     author: "Robin Waslander",
     role: "Mblock BV",
     avatar: "https://github.com/hydro13.png",
-    time: "1h ago",
+    time: Date.now() - 1 * 3600000,
     text: "**Agents now handle unexpected stop reasons gracefully** — no more silent crashes mid-conversation.",
     pr: {
       title: "fix(agents): handle unhandled stop reasons gracefully instead of crashing",
@@ -150,7 +150,7 @@ const OPENCLAW_STORIES = [
     author: "Robin Waslander",
     role: "Mblock BV",
     avatar: "https://github.com/hydro13.png",
-    time: "2h ago",
+    time: Date.now() - 2 * 3600000,
     text: "**Changelog now reflects all recent fixes** — cleaner release notes for contributors tracking changes.",
     aiTag: "small",
     pr: {
@@ -167,7 +167,7 @@ const OPENCLAW_STORIES = [
     author: "Robin Waslander",
     role: "Mblock BV",
     avatar: "https://github.com/hydro13.png",
-    time: "3h ago",
+    time: Date.now() - 3 * 3600000,
     text: "**Telegram bot no longer crashes on empty replies** — silently skips instead of throwing GrammyError 400.",
     pr: {
       title: "fix(telegram): skip empty text replies instead of crashing with GrammyError 400",
@@ -183,7 +183,7 @@ const OPENCLAW_STORIES = [
     author: "Robin Waslander",
     role: "Mblock BV",
     avatar: "https://github.com/hydro13.png",
-    time: "3h ago",
+    time: Date.now() - 3 * 3600000,
     text: "**Auto-reply no longer leaks raw JSON to users** — NO_REPLY payloads are suppressed before delivery.",
     relevant: "Relevant to your work on channel delivery — this fixes payload formatting before messages reach users",
     pr: {
@@ -200,7 +200,7 @@ const OPENCLAW_STORIES = [
     author: "Robin Waslander",
     role: "Mblock BV",
     avatar: "https://github.com/hydro13.png",
-    time: "4h ago",
+    time: Date.now() - 4 * 3600000,
     text: "**Long Telegram messages now split at word boundaries** — no more cut-off words in multi-part replies.",
     relevant: "Relevant to your work on channel delivery — improves message formatting in the same pipeline you're touching",
     pr: {
@@ -217,7 +217,7 @@ const OPENCLAW_STORIES = [
     author: "Robin Waslander",
     role: "Mblock BV",
     avatar: "https://github.com/hydro13.png",
-    time: "4h ago",
+    time: Date.now() - 4 * 3600000,
     text: "**Telegram replies now validate message IDs** before sending — prevents API errors on stale threads.",
     aiTag: "small",
     pr: {
@@ -234,7 +234,7 @@ const OPENCLAW_STORIES = [
     author: "Robin Waslander",
     role: "Mblock BV",
     avatar: "https://github.com/hydro13.png",
-    time: "5h ago",
+    time: Date.now() - 5 * 3600000,
     text: "**BlueBubbles no longer crashes on null text** — debounce flush is properly guarded.",
     aiTag: "small",
     pr: {
@@ -251,7 +251,7 @@ const OPENCLAW_STORIES = [
     author: "Robin Waslander",
     role: "Mblock BV",
     avatar: "https://github.com/hydro13.png",
-    time: "5h ago",
+    time: Date.now() - 5 * 3600000,
     text: "**Gemini 3.1 models now resolve correctly** across all Google provider aliases — no more model-not-found errors.",
     pr: {
       title: "fix(google): resolve Gemini 3.1 models for all Google provider aliases",
@@ -267,7 +267,7 @@ const OPENCLAW_STORIES = [
     author: "Robin Waslander",
     role: "Mblock BV",
     avatar: "https://github.com/hydro13.png",
-    time: "5h ago",
+    time: Date.now() - 5 * 3600000,
     text: "**CLI tab completion no longer errors on fresh zsh shells** — compdef registration deferred until ready.",
     aiTag: "small",
     pr: {
@@ -284,7 +284,7 @@ const OPENCLAW_STORIES = [
     author: "Robin Waslander",
     role: "Mblock BV",
     avatar: "https://github.com/hydro13.png",
-    time: "6h ago",
+    time: Date.now() - 6 * 3600000,
     text: "**Web search API keys are now audited** across all bundled providers — tighter security for search integrations.",
     pr: {
       title: "fix(security): audit web search keys for all bundled providers",
@@ -300,7 +300,7 @@ const OPENCLAW_STORIES = [
     author: "Robin Waslander",
     role: "Mblock BV",
     avatar: "https://github.com/hydro13.png",
-    time: "8h ago",
+    time: Date.now() - 8 * 3600000,
     text: "**FAQ broken links cleaned up** — removed dead Xfinity SSL troubleshooting pages.",
     aiTag: "small",
     pr: {
@@ -318,7 +318,7 @@ const OPENCLAW_STORIES = [
     author: "Tak Hoffman",
     role: "Contributor",
     avatar: "https://github.com/Takhoffman.png",
-    time: "6h ago",
+    time: Date.now() - 6 * 3600000,
     text: "**Dashboard setup now guides users with clearer prompts** — fewer drop-offs at onboarding.",
     aiTag: "small",
     pr: {
@@ -335,7 +335,7 @@ const OPENCLAW_STORIES = [
     author: "Tak Hoffman",
     role: "Contributor",
     avatar: "https://github.com/Takhoffman.png",
-    time: "7h ago",
+    time: Date.now() - 7 * 3600000,
     text: "**Dev builds now automatically rebuild dist after HEAD changes** — no more stale bundles during development.",
     pr: {
       title: "fix(dev): rebuild dist after HEAD changes",
@@ -351,7 +351,7 @@ const OPENCLAW_STORIES = [
     author: "Tak Hoffman",
     role: "Contributor",
     avatar: "https://github.com/Takhoffman.png",
-    time: "9h ago",
+    time: Date.now() - 9 * 3600000,
     text: "**CI shard counts are now aligned** between bun and Windows runners — consistent parallel test execution.",
     aiTag: "small",
     pr: {
@@ -368,7 +368,7 @@ const OPENCLAW_STORIES = [
     author: "Tak Hoffman",
     role: "Contributor",
     avatar: "https://github.com/Takhoffman.png",
-    time: "23h ago",
+    time: Date.now() - 23 * 3600000,
     text: "**Module-bound regression tests no longer flake** — stabilized exact matching in CI pipeline.",
     pr: {
       title: "fix(ci): stabilize module-bound exact regressions",
@@ -385,7 +385,7 @@ const OPENCLAW_STORIES = [
     author: "Harold Hunt",
     role: "GIPHY",
     avatar: "https://github.com/huntharo.png",
-    time: "2h ago",
+    time: Date.now() - 2 * 3600000,
     text: "**xAI provider now uses the Responses API with native search** — unlocks grounded web results for Grok models.",
     pr: {
       title: "fix(xai): move bundled provider to Responses and add x_search",
@@ -402,7 +402,7 @@ const OPENCLAW_STORIES = [
     author: "Devin Robison",
     role: "Contributor",
     avatar: "https://github.com/drobison00.png",
-    time: "3h ago",
+    time: Date.now() - 3 * 3600000,
     text: "**OpenAI-compatible API routes now enforce operator.write scopes** — closes a permission bypass in HTTP layer.",
     pr: {
       title: "Fix HTTP OpenAI-compatible routes missing operator.write scope checks",
@@ -419,7 +419,7 @@ const OPENCLAW_STORIES = [
     author: "Frank Yang",
     role: "Contributor",
     avatar: "https://github.com/frankekn.png",
-    time: "7h ago",
+    time: Date.now() - 7 * 3600000,
     text: "**ACP bindings now refresh after runtime exits** — no more stale connections when processes restart.",
     pr: {
       title: "fix(acp): repair stale bindings after runtime exits",
@@ -436,7 +436,7 @@ const OPENCLAW_STORIES = [
     author: "Tyler Yust",
     role: "Contributor",
     avatar: "https://github.com/tyler6204.png",
-    time: "12h ago",
+    time: Date.now() - 12 * 3600000,
     text: "**Extension channels now receive subagent announcements** — plugins stay in sync with agent lifecycle events.",
     pr: {
       title: "fix: include extension channels in subagent announce delivery path",
@@ -453,7 +453,7 @@ const OPENCLAW_STORIES = [
     author: "Mariano",
     role: "Contributor",
     avatar: "https://github.com/mbelinky.png",
-    time: "15h ago",
+    time: Date.now() - 15 * 3600000,
     text: "**Daemon probes now surface close reasons** — easier debugging when health checks fail unexpectedly.",
     pr: {
       title: "fix(daemon): surface probe close reasons",
@@ -470,7 +470,7 @@ const OPENCLAW_STORIES = [
     author: "Kenny Xie",
     role: "Contributor",
     avatar: "https://github.com/aquaright1.png",
-    time: "15h ago",
+    time: Date.now() - 15 * 3600000,
     text: "**Matrix plugin no longer crashes from mixed SDK entrypoints** — resolves module conflict on startup.",
     pr: {
       title: "fix(matrix): prevent mixed matrix-js-sdk entrypoints from crashing plugin load",
@@ -487,7 +487,7 @@ const OPENCLAW_STORIES = [
     author: "Saurabh Mishra",
     role: "Contributor",
     avatar: "https://github.com/bugkill3r.png",
-    time: "11h ago",
+    time: Date.now() - 11 * 3600000,
     text: "**Telegram model selector now shows human-readable names** — no more cryptic model IDs in the picker.",
     pr: {
       title: "fix: display model name instead of ID in Telegram model selector",
@@ -504,7 +504,7 @@ const OPENCLAW_STORIES = [
     author: "Brad Groux",
     role: "Contributor",
     avatar: "https://github.com/BradGroux.png",
-    time: "19h ago",
+    time: Date.now() - 19 * 3600000,
     text: "**Teams messages now deliver progressively** with proper streaming config — smoother real-time responses.",
     relevant: "Relevant to your work on channel delivery — adds streaming support to the Teams delivery path",
     pr: {
@@ -522,7 +522,7 @@ const OPENCLAW_STORIES = [
     author: "Neerav Makwana",
     role: "Contributor",
     avatar: "https://github.com/neeravmakwana.png",
-    time: "21h ago",
+    time: Date.now() - 21 * 3600000,
     text: "**Gateway now reuses session workspaces for tool loading** — faster HTTP tool execution with less overhead.",
     pr: {
       title: "gateway: reuse session workspace for HTTP tool loading",
@@ -539,7 +539,7 @@ const OPENCLAW_STORIES = [
     author: "Sid Uppal",
     role: "Contributor",
     avatar: "https://github.com/SidU.png",
-    time: "21h ago",
+    time: Date.now() - 21 * 3600000,
     text: "**Teams stream state now resets after tool calls** — no more dropped messages during multi-step workflows.",
     relevant: "Relevant to your work on channel delivery — prevents message loss during multi-step tool flows",
     pr: {
@@ -557,7 +557,7 @@ const OPENCLAW_STORIES = [
     author: "Gustavo Santana",
     role: "Contributor",
     avatar: "https://github.com/gumadeiras.png",
-    time: "24h ago",
+    time: Date.now() - 24 * 3600000,
     text: "**Bundled runtime deps now stage correctly after updates** — no more missing dependencies in production builds.",
     pr: {
       title: "fix(diffs): stage bundled runtime deps after updates",
@@ -607,7 +607,7 @@ const MINIMAX_STORIES = [
     author: "divitkashyap",
     role: "Contributor",
     avatar: "https://github.com/divitkashyap.png",
-    time: "1d ago",
+    time: Date.now() - 1 * 86400000,
     text: "**New image analysis skill** with OCR, UI review, and chart extraction — vision-powered workflows just got way more capable.",
     pr: {
       title: "feat(vision-analysis): add image analysis skill with OCR, UI review, and chart extraction",
@@ -623,7 +623,7 @@ const MINIMAX_STORIES = [
     author: "JithendraNara",
     role: "Contributor",
     avatar: "https://github.com/JithendraNara.png",
-    time: "1d ago",
+    time: Date.now() - 1 * 86400000,
     text: "**Added Cursor install guide and VS Code note** — easier onboarding for new contributors.",
     pr: {
       title: "docs: add Cursor install guide and VS Code note",
@@ -639,7 +639,7 @@ const MINIMAX_STORIES = [
     author: "dewu0224",
     role: "Contributor",
     avatar: "https://github.com/dewu0224.png",
-    time: "1d ago",
+    time: Date.now() - 1 * 86400000,
     text: "**Image processing now uses temp files for jq** — fixes Windows command-line length limit crashes.",
     pr: {
       title: "fix(image): use temp files for jq to avoid Windows command-line length limit",
@@ -655,7 +655,7 @@ const MINIMAX_STORIES = [
     author: "liyuan97",
     role: "Contributor",
     avatar: "https://github.com/liyuan97.png",
-    time: "1d ago",
+    time: Date.now() - 1 * 86400000,
     text: "**Plan limits added and video constraints locked to 768P/6s** — tighter resource controls for MiniMax generation.",
     pr: {
       title: "feat(minimax): add plan limits & fix video constraints to 768P/6s only",
@@ -679,12 +679,111 @@ const EAZO_TEAM = [
 
 const EAZO_STORIES = [
   {
+    id: 20,
+    authorId: 1,
+    author: "Chris Li",
+    role: "Creator",
+    avatar: "https://github.com/unregistered.png",
+    time: Date.now() - 1 * 60000,
+    text: "**Added an onboarding flow** — new visitors see 4 intro slides reusing the StoryViewer, with Skip and Get Started buttons.",
+    pr: {
+      title: "Add onboarding flow reusing StoryViewer with 4 intro slides",
+      status: "MERGED",
+      number: "#23",
+      url: "https://github.com/unregistered/code-story/commit/6b7e192",
+    },
+    reactions: { fire: 5, eyes: 3, hand: 0 },
+  },
+  {
+    id: 19,
+    authorId: 1,
+    author: "Chris Li",
+    role: "Creator",
+    avatar: "https://github.com/unregistered.png",
+    time: Date.now() - 2 * 60000,
+    text: "**Posted updates moved to the Recent Diffs feed** — retract and edit buttons now live inline.",
+    pr: {
+      title: "Move posted updates to Recent Diffs feed with retract and edit buttons",
+      status: "MERGED",
+      number: "#22",
+      url: "https://github.com/unregistered/code-story/commit/c8042ab",
+    },
+    reactions: { fire: 4, eyes: 2, hand: 0 },
+  },
+  {
+    id: 18,
+    authorId: 1,
+    author: "Chris Li",
+    role: "Creator",
+    avatar: "https://github.com/unregistered.png",
+    time: Date.now() - 3 * 60000,
+    text: "**Stories now play oldest-first** within each author — tap through updates chronologically.",
+    aiTag: "small",
+    pr: {
+      title: "Show stories in chronological order (oldest first) within each author",
+      status: "MERGED",
+      number: "#21",
+      url: "https://github.com/unregistered/code-story/commit/6b83a37",
+    },
+    reactions: { fire: 2, eyes: 1, hand: 0 },
+  },
+  {
+    id: 17,
+    authorId: 1,
+    author: "Chris Li",
+    role: "Creator",
+    avatar: "https://github.com/unregistered.png",
+    time: Date.now() - 4 * 60000,
+    text: "**Switching identity now generates pending posts** from your small-tagged stories automatically.",
+    aiTag: "small",
+    pr: {
+      title: "Generate per-user pending posts from small-tagged stories on identity switch",
+      status: "MERGED",
+      number: "#20",
+      url: "https://github.com/unregistered/code-story/commit/d831ca9",
+    },
+    reactions: { fire: 3, eyes: 1, hand: 0 },
+  },
+  {
+    id: 16,
+    authorId: 1,
+    author: "Chris Li",
+    role: "Creator",
+    avatar: "https://github.com/unregistered.png",
+    time: Date.now() - 5 * 60000,
+    text: "**Added bold/light typography to story text** — key phrases pop while context fades back.",
+    pr: {
+      title: "Add bold/light typography to story text and update Eazo stories",
+      status: "MERGED",
+      number: "#19",
+      url: "https://github.com/unregistered/code-story/commit/cdb720a",
+    },
+    reactions: { fire: 6, eyes: 2, hand: 1 },
+  },
+  {
+    id: 15,
+    authorId: 1,
+    author: "Chris Li",
+    role: "Creator",
+    avatar: "https://github.com/unregistered.png",
+    time: Date.now() - 6 * 60000,
+    text: "**PR/ticket cards now sit in a fixed chrome layer** so links stay clickable during cube transitions.",
+    aiTag: "small",
+    pr: {
+      title: "Move PR/ticket card to fixed chrome layer so links are clickable",
+      status: "MERGED",
+      number: "#18",
+      url: "https://github.com/unregistered/code-story/commit/077fed6",
+    },
+    reactions: { fire: 3, eyes: 1, hand: 0 },
+  },
+  {
     id: 1,
     authorId: 1,
     author: "Chris Li",
     role: "Creator",
     avatar: "https://github.com/unregistered.png",
-    time: "1m ago",
+    time: Date.now() - 7 * 60000,
     text: "**Feed diffs are now interactive** — post, dismiss, or retract any change with one tap. AI filters small changes out of stories automatically.",
     pr: {
       title: "Add interactive post management, AI small-change filtering, and undo support",
@@ -700,7 +799,7 @@ const EAZO_STORIES = [
     author: "Chris Li",
     role: "Creator",
     avatar: "https://github.com/unregistered.png",
-    time: "3m ago",
+    time: Date.now() - 9 * 60000,
     text: "**Stories now track read state per-user** — bubbles dim after you've seen all updates, and smart ordering surfaces unread content first.",
     pr: {
       title: "Add per-story read tracking, smart ordering, user switcher, and settings",
@@ -716,7 +815,7 @@ const EAZO_STORIES = [
     author: "Chris Li",
     role: "Creator",
     avatar: "https://github.com/unregistered.png",
-    time: "5m ago",
+    time: Date.now() - 11 * 60000,
     text: "**Stories relevant to your current work now glow purple** — AI highlights PRs that touch the same areas you're working on.",
     pr: {
       title: "Add \"relevant to you\" story highlights with purple indicators",
@@ -732,7 +831,7 @@ const EAZO_STORIES = [
     author: "Chris Li",
     role: "Creator",
     avatar: "https://github.com/unregistered.png",
-    time: "6m ago",
+    time: Date.now() - 12 * 60000,
     text: "**Tapping your own story bubble** now opens the viewer to review your posted updates.",
     aiTag: "small",
     pr: {
@@ -749,7 +848,7 @@ const EAZO_STORIES = [
     author: "Chris Li",
     role: "Creator",
     avatar: "https://github.com/unregistered.png",
-    time: "7m ago",
+    time: Date.now() - 14 * 60000,
     text: "**Posted updates can now be retracted back to draft** — cancel auto-post mid-countdown, with a help tooltip explaining the system.",
     pr: {
       title: "Add post retract/draft flow, cancel auto-post, help tooltip, and Eazo Code Story project",
@@ -765,7 +864,7 @@ const EAZO_STORIES = [
     author: "Chris Li",
     role: "Creator",
     avatar: "https://github.com/unregistered.png",
-    time: "10m ago",
+    time: Date.now() - 18 * 60000,
     text: "**Removed the phone mockup frame** — app now fills the viewport on all screen sizes with a 540px max-width cap.",
     pr: {
       title: "Remove phone mockup and make UI responsive",
@@ -781,7 +880,7 @@ const EAZO_STORIES = [
     author: "Chris Li",
     role: "Creator",
     avatar: "https://github.com/unregistered.png",
-    time: "12m ago",
+    time: Date.now() - 20 * 60000,
     text: "**Fixed the flash on StoryViewer mount** — skips initial transition and simplifies dismiss styling.",
     aiTag: "small",
     pr: {
@@ -798,7 +897,7 @@ const EAZO_STORIES = [
     author: "Chris Li",
     role: "Creator",
     avatar: "https://github.com/unregistered.png",
-    time: "15m ago",
+    time: Date.now() - 25 * 60000,
     text: "**Added multi-repo support** — you can now switch between projects with a dropdown selector.",
     pr: {
       title: "Add multi-repo support with switcher UI",
@@ -814,7 +913,7 @@ const EAZO_STORIES = [
     author: "Chris Li",
     role: "Creator",
     avatar: "https://github.com/unregistered.png",
-    time: "17m ago",
+    time: Date.now() - 28 * 60000,
     text: "**UI chrome now sits in a fixed overlay** above the cube rotation — no more clipping during swipes.",
     aiTag: "small",
     pr: {
@@ -831,7 +930,7 @@ const EAZO_STORIES = [
     author: "Chris Li",
     role: "Creator",
     avatar: "https://github.com/unregistered.png",
-    time: "22m ago",
+    time: Date.now() - 33 * 60000,
     text: "**Replaced all mock data with real 24h PR activity** pulled from the openclaw repo.",
     pr: {
       title: "Replace mock data with real 24h PR activity from openclaw repo",
@@ -847,7 +946,7 @@ const EAZO_STORIES = [
     author: "Chris Li",
     role: "Creator",
     avatar: "https://github.com/unregistered.png",
-    time: "31m ago",
+    time: Date.now() - 40 * 60000,
     text: "**Stories now group by person** — swipe left/right moves between people, tap advances within a person's stories.",
     pr: {
       title: "Implement per-person story navigation model",
@@ -863,7 +962,7 @@ const EAZO_STORIES = [
     author: "Chris Li",
     role: "Creator",
     avatar: "https://github.com/unregistered.png",
-    time: "43m ago",
+    time: Date.now() - 50 * 60000,
     text: "**Redesigned the home screen** — added story bubble row with ring indicators and a full posting flow with auto-post timer.",
     pr: {
       title: "Redesign home screen with story bubble row and posting flow",
@@ -879,7 +978,7 @@ const EAZO_STORIES = [
     author: "Chris Li",
     role: "Creator",
     avatar: "https://github.com/unregistered.png",
-    time: "49m ago",
+    time: Date.now() - 1 * 3600000,
     text: "**Initial build** — story viewer with Instagram-style cube transitions, AI-generated commit summaries, and reaction support.",
     pr: {
       title: "Initial commit: story viewer with cube transitions and AI summaries",

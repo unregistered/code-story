@@ -5,22 +5,16 @@ import PostUpdate from "./components/PostUpdate";
 import { REPOS } from "./data";
 
 const ONBOARDING_STORIES = [
-  { id: "onb-4", authorId: "onboarding", author: "Eazo Story", avatar: "/favicon.svg", role: "Try it now", time: "now", text: "**No meetings. Just tap.**", reactions: {} },
-  { id: "onb-3", authorId: "onboarding", author: "Eazo Story", avatar: "/favicon.svg", role: "Smart relevance", time: "now", text: "It highlights **changes that impact your work.**", reactions: {} },
-  { id: "onb-2", authorId: "onboarding", author: "Eazo Story", avatar: "/favicon.svg", role: "AI-powered recaps", time: "now", text: "AI turns PRs into **3-second recaps.**", reactions: {} },
-  { id: "onb-1", authorId: "onboarding", author: "Eazo Story", avatar: "/favicon.svg", role: "The problem with standups", time: "now", text: "30 minutes of standup. 2 minutes of useful info. **Something's broken.**", reactions: {} },
+  { id: "onb-4", authorId: "onboarding", author: "Eazo Story", avatar: "/favicon.svg", role: "Try it now", time: Date.now(), text: "**No meetings. Just tap.**", reactions: {} },
+  { id: "onb-3", authorId: "onboarding", author: "Eazo Story", avatar: "/favicon.svg", role: "Smart relevance", time: Date.now(), text: "It highlights **changes that impact your work.**", reactions: {} },
+  { id: "onb-2", authorId: "onboarding", author: "Eazo Story", avatar: "/favicon.svg", role: "AI-powered recaps", time: Date.now(), text: "AI turns PRs into **3-second recaps.**", reactions: {} },
+  { id: "onb-1", authorId: "onboarding", author: "Eazo Story", avatar: "/favicon.svg", role: "The problem with standups", time: Date.now(), text: "30 minutes of standup. 2 minutes of useful info. **Something's broken.**", reactions: {} },
 ];
 
 function getAllMembers(rawRepo) {
   const members = [...rawRepo.team];
   if (rawRepo.me) members.push(rawRepo.me);
   return members;
-}
-
-function parseTimeAgo(str) {
-  const m = str.match(/(\d+)(m|h|d)/);
-  if (!m) return 0;
-  return m[2] === "d" ? m[1] * 1440 : m[2] === "h" ? m[1] * 60 : +m[1];
 }
 
 function deriveRepo(rawRepo, meId) {
@@ -36,7 +30,7 @@ function deriveRepo(rawRepo, meId) {
       id: s.id,
       text: s.text,
       ticket: s.pr ? { title: s.pr.title, status: s.pr.status } : null,
-      landedAt: Date.now() - parseTimeAgo(s.time) * 60000,
+      landedAt: s.time,
       aiTag: "small",
     }));
   }
