@@ -3,7 +3,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import TeamConstellation from "./components/TeamConstellation";
 import StoryViewer from "./components/StoryViewer";
 import PostUpdate from "./components/PostUpdate";
-import { STORIES } from "./data";
 
 const shellStyle = {
   width: "100%",
@@ -14,12 +13,11 @@ const shellStyle = {
 
 export default function App() {
   const [view, setView] = useState("home");
-  const [storyStartIndex, setStoryStartIndex] = useState(0);
+  const [startAuthorId, setStartAuthorId] = useState(null);
   const [postPrefill, setPostPrefill] = useState(null);
 
   const handleMemberTap = (member) => {
-    const idx = STORIES.findIndex((story) => story.authorId === member.id);
-    setStoryStartIndex(idx >= 0 ? idx : 0);
+    setStartAuthorId(member.id);
     setView("stories");
   };
 
@@ -42,8 +40,8 @@ export default function App() {
         <AnimatePresence mode="wait">
           {view === "stories" && (
             <StoryViewer
-              key={`stories-${storyStartIndex}`}
-              startIndex={storyStartIndex}
+              key={`stories-${startAuthorId}`}
+              startAuthorId={startAuthorId}
               onClose={() => setView("home")}
             />
           )}

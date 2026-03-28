@@ -413,10 +413,11 @@ export default function StoryViewer({ startIndex = 0, onClose }) {
   return (
     <motion.div
       ref={containerRef}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="absolute inset-0 z-50 overflow-hidden"
+      initial={{ scale: 0.92, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      exit={{ scale: 0.92, opacity: 0 }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
+      className="absolute inset-0 z-50 overflow-hidden bg-[var(--color-app-bg)] will-change-transform"
       style={outerStyle}
     >
       {/* 3D cube container */}
@@ -488,8 +489,8 @@ export default function StoryViewer({ startIndex = 0, onClose }) {
 
             {/* Story content */}
             <div className="pointer-events-none absolute inset-0 z-10 flex flex-col justify-center px-6">
-              <AnimatePresence mode="wait">
-                <motion.div key={currentStory.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
+              <AnimatePresence mode="popLayout">
+                <motion.div key={currentStory.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.12 }}>
                   <h1 className="text-[2.5rem] font-black leading-[1.06] tracking-tighter text-[var(--color-charcoal)]">
                     {currentStory.text}
                   </h1>
