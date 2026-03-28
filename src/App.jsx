@@ -15,21 +15,17 @@ const shellStyle = {
 export default function App() {
   const [view, setView] = useState("home");
   const [storyStartIndex, setStoryStartIndex] = useState(0);
+  const [postPrefill, setPostPrefill] = useState(null);
 
   const handleMemberTap = (member) => {
-    if (member.isPostFlow || member.id === 0) {
-      setView("post");
-      return;
-    }
-
     const idx = STORIES.findIndex((story) => story.authorId === member.id);
     setStoryStartIndex(idx >= 0 ? idx : 0);
     setView("stories");
   };
 
-  const handlePlayAll = () => {
-    setStoryStartIndex(0);
-    setView("stories");
+  const handleEditPost = (prefill) => {
+    setPostPrefill(prefill);
+    setView("post");
   };
 
   return (
@@ -41,7 +37,7 @@ export default function App() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: "easeOut" }}
       >
-        <TeamConstellation onMemberTap={handleMemberTap} onPlayAll={handlePlayAll} />
+        <TeamConstellation onMemberTap={handleMemberTap} onEditPost={handleEditPost} />
 
         <AnimatePresence mode="wait">
           {view === "stories" && (
@@ -52,7 +48,11 @@ export default function App() {
             />
           )}
           {view === "post" && (
-            <PostUpdate onClose={() => setView("home")} onPosted={() => setView("home")} />
+            <PostUpdate
+              prefill={postPrefill}
+              onClose={() => setView("home")}
+              onPosted={() => setView("home")}
+            />
           )}
         </AnimatePresence>
       </motion.div>

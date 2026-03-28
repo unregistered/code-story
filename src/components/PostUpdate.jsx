@@ -10,14 +10,14 @@ const PANEL_STYLES = {
   idle: "text-[color:rgba(26,24,22,0.7)]",
 };
 
-export default function PostUpdate({ onClose, onPosted }) {
-  const [text, setText] = useState("");
-  const [attachType, setAttachType] = useState(null);
-  const [prTitle, setPrTitle] = useState("");
-  const [prNumber, setPrNumber] = useState("");
-  const [prStatus, setPrStatus] = useState("OPEN");
-  const [ticketTitle, setTicketTitle] = useState("");
-  const [ticketStatus, setTicketStatus] = useState("IN REVIEW");
+export default function PostUpdate({ onClose, onPosted, prefill }) {
+  const [text, setText] = useState(prefill?.text || "");
+  const [attachType, setAttachType] = useState(prefill?.attachType || null);
+  const [prTitle, setPrTitle] = useState(prefill?.prTitle || "");
+  const [prNumber, setPrNumber] = useState(prefill?.prNumber || "");
+  const [prStatus, setPrStatus] = useState(prefill?.prStatus || "OPEN");
+  const [ticketTitle, setTicketTitle] = useState(prefill?.ticketTitle || "");
+  const [ticketStatus, setTicketStatus] = useState(prefill?.ticketStatus || "IN REVIEW");
   const [submitted, setSubmitted] = useState(false);
 
   const charLimit = 180;

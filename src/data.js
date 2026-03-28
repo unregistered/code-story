@@ -44,6 +44,13 @@ export const ME = {
   status: "posted",
 };
 
+export const PENDING_POST = {
+  text: "Matrix login no longer fails when primary credentials are unavailable — smoother auth experience for federated users.",
+  ticket: { title: "MTX-18 Auth fallback", status: "MERGED" },
+  landedAt: Date.now() - 2 * 60 * 1000,
+  autoPostAt: Date.now() + 8 * 60 * 1000,
+};
+
 export const STORIES = [
   {
     id: 1,
