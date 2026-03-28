@@ -536,7 +536,6 @@ export default function StoryViewer({ stories, startAuthorId, readStories = [], 
                   <p className="text-xs font-medium leading-snug text-[var(--color-relevant)]">{currentStory.relevant}</p>
                 </div>
               )}
-              <AttachedCard story={currentStory} />
             </div>
           </div>
 
@@ -583,6 +582,13 @@ export default function StoryViewer({ stories, startAuthorId, readStories = [], 
             <FloatingReaction key={reaction.id} reaction={reaction} />
           ))}
         </AnimatePresence>
+
+        {/* Attached PR/ticket card */}
+        {(currentStory.pr || currentStory.ticket) && (
+          <div className="absolute right-6 bottom-[calc(max(2rem,env(safe-area-inset-bottom))+5rem)] left-6">
+            <AttachedCard story={currentStory} />
+          </div>
+        )}
 
         {/* Comment bar */}
         <div className="pointer-events-auto absolute right-4 left-4 bottom-[max(2rem,env(safe-area-inset-bottom))]">
