@@ -196,7 +196,8 @@ export default function StoryViewer({ stories, startAuthorId, readStories = [], 
     for (const story of stories) {
       if (!seen.has(story.authorId)) {
         seen.add(story.authorId);
-        groups.push(stories.filter(s => s.authorId === story.authorId));
+        // Reverse so oldest is first (tap through chronologically)
+        groups.push(stories.filter(s => s.authorId === story.authorId).reverse());
       }
     }
     return groups;
