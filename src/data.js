@@ -912,7 +912,7 @@ export const REPOS = [
   },
   {
     id: "eazo-code-story",
-    name: "Eazo Code Story",
+    name: "Eazo Story (this repo)",
     fullName: "unregistered/code-story",
     team: EAZO_TEAM,
     me: null,
