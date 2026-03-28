@@ -254,7 +254,7 @@ function EmptyPostCard({ onPost }) {
   );
 }
 
-function RecentDiffsFeed({ posts, postStatuses, onPost, onDismiss }) {
+function RecentDiffsFeed({ posts, postStatuses, onPost, onDismiss, onRetract, onEdit }) {
   const timeAgo = (ts) => {
     const mins = Math.round((Date.now() - ts) / 60000);
     if (mins < 60) return `${mins}m ago`;
@@ -288,7 +288,7 @@ function RecentDiffsFeed({ posts, postStatuses, onPost, onDismiss }) {
             const badge = badgeFor(status);
             const showDismiss = status === "available" || status === "skipped";
             const showPost = status === "available" || status === "skipped";
-            const showRetract = status === "auto-posted";
+            const showRetract = status === "auto-posted" || status === "posted";
 
             return (
               <motion.div
@@ -312,8 +312,13 @@ function RecentDiffsFeed({ posts, postStatuses, onPost, onDismiss }) {
                         </motion.button>
                       )}
                       {showRetract && (
-                        <motion.button whileTap={{ scale: 0.85 }} onClick={() => onDismiss(post.id)} className="flex h-8 w-8 items-center justify-center rounded-full bg-black/5 text-[color:rgba(26,24,22,0.4)]">
+                        <motion.button whileTap={{ scale: 0.85 }} onClick={() => onRetract(post.id)} className="flex h-8 w-8 items-center justify-center rounded-full bg-black/5 text-[color:rgba(26,24,22,0.4)]">
                           <Undo2 size={14} />
+                        </motion.button>
+                      )}
+                      {showPost && (
+                        <motion.button whileTap={{ scale: 0.85 }} onClick={() => onEdit(post)} className="flex h-8 w-8 items-center justify-center rounded-full bg-black/5 text-[color:rgba(26,24,22,0.4)]">
+                          <Pencil size={12} />
                         </motion.button>
                       )}
                       {showPost && (
@@ -352,11 +357,9 @@ export default function TeamConstellation({ repo, readStories, allMembers, curre
   const [showRepoDropdown, setShowRepoDropdown] = useState(false);
 
   const pendingPost = (repo.pendingPosts || []).find(p => postStatuses[p.id] === "pending");
-  const mostRecentPosted = (repo.pendingPosts || []).filter(p => postStatuses[p.id] === "posted").sort((a, b) => b.landedAt - a.landedAt)[0];
-  const activePost = pendingPost || mostRecentPosted || null;
-  const activeStatus = activePost ? postStatuses[activePost.id] : null;
-  const feedPosts = (repo.pendingPosts || []).filter(p => p !== activePost && postStatuses[p.id] !== "dismissed");
-  const bubblePostState = activeStatus === "posted" ? "posted" : activeStatus === "pending" ? "pending" : "empty";
+  const hasPosted = (repo.pendingPosts || []).some(p => postStatuses[p.id] === "posted" || postStatuses[p.id] === "auto-posted");
+  const feedPosts = (repo.pendingPosts || []).filter(p => p !== pendingPost && postStatuses[p.id] !== "dismissed");
+  const bubblePostState = hasPosted ? "posted" : pendingPost ? "pending" : "empty";
 
   const [secondsRemaining, setSecondsRemaining] = useState(() =>
     pendingPost ? Math.max(0, Math.round((pendingPost.autoPostAt - Date.now()) / 1000)) : 0
@@ -426,15 +429,15 @@ export default function TeamConstellation({ repo, readStories, allMembers, curre
     setPostStatuses((s) => ({ ...s, [pendingPost.id]: "posted" }));
   };
 
-  const handleRetract = () => {
-    if (!activePost) return;
-    setPostStatuses((s) => ({ ...s, [activePost.id]: "dismissed" }));
-  };
 
   const handleFeedPost = (postId) => {
     const prev = postStatuses[postId];
     setPostStatuses((s) => ({ ...s, [postId]: "posted" }));
     setUndoAction({ postId, previousStatus: prev, label: "Posted" });
+  };
+
+  const handleFeedRetract = (postId) => {
+    setPostStatuses((s) => ({ ...s, [postId]: "available" }));
   };
 
   const handleFeedDismiss = (postId) => {
@@ -447,6 +450,15 @@ export default function TeamConstellation({ repo, readStories, allMembers, curre
     if (!undoAction) return;
     setPostStatuses((s) => ({ ...s, [undoAction.postId]: undoAction.previousStatus }));
     setUndoAction(null);
+  };
+
+  const handleFeedEdit = (post) => {
+    onEditPost?.({
+      text: post.text,
+      attachType: post.ticket ? "ticket" : post.pr ? "pr" : null,
+      ticketTitle: post.ticket?.title || "",
+      ticketStatus: post.ticket?.status || "IN REVIEW",
+    });
   };
 
   const handlePost = () => {
@@ -547,7 +559,7 @@ export default function TeamConstellation({ repo, readStories, allMembers, curre
       <div className="flex-1 overflow-y-auto pb-[max(2.5rem,env(safe-area-inset-bottom))]">
         {repo.me ? (
           <>
-            {activeStatus === "pending" && pendingPost && (
+            {pendingPost && (
               <PendingPostCard
                 post={pendingPost}
                 secondsRemaining={secondsRemaining}
@@ -557,10 +569,7 @@ export default function TeamConstellation({ repo, readStories, allMembers, curre
                 onPostNow={handlePostNow}
               />
             )}
-            {activeStatus === "posted" && activePost && (
-              <PostedCard post={activePost} onRetract={handleRetract} />
-            )}
-            {!activePost && (
+            {!pendingPost && !hasPosted && (
               <EmptyPostCard onPost={handlePost} />
             )}
             {(repo.pendingPosts || []).length > 0 && (
@@ -569,6 +578,8 @@ export default function TeamConstellation({ repo, readStories, allMembers, curre
                 postStatuses={postStatuses}
                 onPost={handleFeedPost}
                 onDismiss={handleFeedDismiss}
+                onRetract={handleFeedRetract}
+                onEdit={handleFeedEdit}
               />
             )}
             <AnimatePresence>
