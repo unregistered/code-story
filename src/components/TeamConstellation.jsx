@@ -245,14 +245,27 @@ function EmptyPostCard({ onPost }) {
   );
 }
 
-function RecentDiffsFeed({ posts }) {
-  if (!posts || posts.length === 0) return null;
-
+function RecentDiffsFeed({ posts, postStatuses, onPost, onDismiss }) {
   const timeAgo = (ts) => {
     const mins = Math.round((Date.now() - ts) / 60000);
     if (mins < 60) return `${mins}m ago`;
     return `${Math.round(mins / 60)}h ago`;
   };
+
+  const badgeFor = (status) => {
+    if (status === "auto-posted") return { bg: "bg-[var(--color-sage)]", tc: "text-white", label: "Auto-posted", Icon: Sparkles };
+    if (status === "posted") return { bg: "bg-[var(--color-sage)]", tc: "text-white", label: "Posted", Icon: Check };
+    if (status === "skipped") return { bg: "bg-[var(--color-warning)]", tc: "text-white", label: "Skipped", Icon: X };
+    return { bg: "bg-[color:rgba(26,24,22,0.08)]", tc: "text-[color:rgba(26,24,22,0.45)]", label: "Small change", Icon: MinusCircle };
+  };
+
+  if (!posts || posts.length === 0) {
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-8 px-5">
+        <p className="text-center text-sm font-medium text-[color:rgba(26,24,22,0.3)]">All caught up</p>
+      </motion.div>
+    );
+  }
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-6 px-5">
@@ -260,29 +273,56 @@ function RecentDiffsFeed({ posts }) {
         <span className="text-[10px] font-bold uppercase tracking-widest text-[color:rgba(26,24,22,0.4)]">Recent Diffs</span>
       </div>
       <div className="space-y-3">
-        {posts.map((post) => (
-          <div
-            key={post.id}
-            className="rounded-2xl border border-[color:rgba(26,24,22,0.06)] bg-[color:rgba(255,255,255,0.6)] p-4 shadow-sm"
-          >
-            <div className="mb-2 flex items-center gap-2">
-              {post.aiTag === "important" ? (
-                <span className="inline-flex items-center gap-1 rounded-md bg-[var(--color-sage)] px-2 py-0.5 text-[10px] font-extrabold uppercase text-white">
-                  <Sparkles size={10} /> Auto-posted
-                </span>
-              ) : (
-                <span className="inline-flex items-center gap-1 rounded-md bg-[color:rgba(26,24,22,0.08)] px-2 py-0.5 text-[10px] font-extrabold uppercase text-[color:rgba(26,24,22,0.45)]">
-                  <MinusCircle size={10} /> Small change
-                </span>
-              )}
-              <span className="text-[10px] font-medium text-[color:rgba(26,24,22,0.3)]">{timeAgo(post.landedAt)}</span>
-            </div>
-            <p className="text-[13px] font-semibold leading-snug text-[var(--color-charcoal)]">{post.text}</p>
-            {post.ticket && (
-              <p className="mt-1.5 font-mono text-[11px] font-medium text-[color:rgba(26,24,22,0.4)]">{post.ticket.title}</p>
-            )}
-          </div>
-        ))}
+        <AnimatePresence mode="popLayout">
+          {posts.map((post) => {
+            const status = postStatuses[post.id] || "available";
+            const badge = badgeFor(status);
+            const showDismiss = status === "available" || status === "skipped";
+            const showPost = status === "available" || status === "skipped";
+            const showRetract = status === "auto-posted";
+
+            return (
+              <motion.div
+                key={post.id}
+                layout
+                initial={{ opacity: 1 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
+                className="rounded-2xl border border-[color:rgba(26,24,22,0.06)] bg-[color:rgba(255,255,255,0.6)] p-4 shadow-sm"
+              >
+                <div className="mb-2 flex items-center gap-2">
+                  <span className={`inline-flex items-center gap-1 rounded-md ${badge.bg} px-2 py-0.5 text-[10px] font-extrabold uppercase ${badge.tc}`}>
+                    <badge.Icon size={10} /> {badge.label}
+                  </span>
+                  <span className="text-[10px] font-medium text-[color:rgba(26,24,22,0.3)]">{timeAgo(post.landedAt)}</span>
+                  {(showDismiss || showPost || showRetract) && (
+                    <div className="ml-auto flex gap-1.5">
+                      {showDismiss && (
+                        <motion.button whileTap={{ scale: 0.85 }} onClick={() => onDismiss(post.id)} className="flex h-8 w-8 items-center justify-center rounded-full bg-black/5 text-[color:rgba(26,24,22,0.4)]">
+                          <X size={14} />
+                        </motion.button>
+                      )}
+                      {showRetract && (
+                        <motion.button whileTap={{ scale: 0.85 }} onClick={() => onDismiss(post.id)} className="flex h-8 w-8 items-center justify-center rounded-full bg-black/5 text-[color:rgba(26,24,22,0.4)]">
+                          <Undo2 size={14} />
+                        </motion.button>
+                      )}
+                      {showPost && (
+                        <motion.button whileTap={{ scale: 0.85 }} onClick={() => onPost(post.id)} className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-charcoal)] text-white">
+                          <Send size={12} />
+                        </motion.button>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <p className="text-[13px] font-semibold leading-snug text-[var(--color-charcoal)]">{post.text}</p>
+                {post.ticket && (
+                  <p className="mt-1.5 font-mono text-[11px] font-medium text-[color:rgba(26,24,22,0.4)]">{post.ticket.title}</p>
+                )}
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
       </div>
     </motion.div>
   );
@@ -290,60 +330,75 @@ function RecentDiffsFeed({ posts }) {
 
 export default function TeamConstellation({ repo, readStories, allMembers, currentMeId, onSetMe, onResetData, onRepoChange, onMemberTap, onEditPost }) {
   const [showSettings, setShowSettings] = useState(false);
-  const activePending = repo.pendingPosts?.find((p) => p.aiTag === "important" && !p.autoPosted && p.autoPostAt);
-  const otherPosts = repo.pendingPosts?.filter((p) => p !== activePending) || [];
-  const initialPostState = activePending ? "pending" : repo.me ? "posted" : "empty";
-  const [postState, setPostState] = useState(initialPostState);
-  const [pendingPost, setPendingPost] = useState(activePending);
-  const [postedPost, setPostedPost] = useState(null);
-  const [secondsRemaining, setSecondsRemaining] = useState(() =>
-    activePending ? Math.max(0, Math.round((activePending.autoPostAt - Date.now()) / 1000)) : 0
-  );
-  const [pendingCancelled, setPendingCancelled] = useState(false);
+  const [postStatuses, setPostStatuses] = useState(() => {
+    const map = {};
+    for (const p of (repo.pendingPosts || [])) {
+      if (p.autoPosted) map[p.id] = "auto-posted";
+      else if (p.autoPostAt) map[p.id] = "pending";
+      else if (p.aiTag === "small") map[p.id] = "available";
+    }
+    return map;
+  });
+  const [undoAction, setUndoAction] = useState(null);
   const [showRepoDropdown, setShowRepoDropdown] = useState(false);
+
+  const pendingPost = (repo.pendingPosts || []).find(p => postStatuses[p.id] === "pending");
+  const mostRecentPosted = (repo.pendingPosts || []).filter(p => postStatuses[p.id] === "posted").sort((a, b) => b.landedAt - a.landedAt)[0];
+  const activePost = pendingPost || mostRecentPosted || null;
+  const activeStatus = activePost ? postStatuses[activePost.id] : null;
+  const feedPosts = (repo.pendingPosts || []).filter(p => p !== activePost && postStatuses[p.id] !== "dismissed");
+  const bubblePostState = activeStatus === "posted" ? "posted" : activeStatus === "pending" ? "pending" : "empty";
+
+  const [secondsRemaining, setSecondsRemaining] = useState(() =>
+    pendingPost ? Math.max(0, Math.round((pendingPost.autoPostAt - Date.now()) / 1000)) : 0
+  );
 
   // Reset state when repo changes
   useEffect(() => {
-    const newActive = repo.pendingPosts?.find((p) => p.aiTag === "important" && !p.autoPosted && p.autoPostAt);
-    const newPostState = newActive ? "pending" : repo.me ? "posted" : "empty";
-    setPostState(newPostState);
-    setPendingPost(newActive);
-    setPostedPost(null);
-    setPendingCancelled(false);
-    setSecondsRemaining(
-      newActive ? Math.max(0, Math.round((newActive.autoPostAt - Date.now()) / 1000)) : 0
-    );
+    const map = {};
+    for (const p of (repo.pendingPosts || [])) {
+      if (p.autoPosted) map[p.id] = "auto-posted";
+      else if (p.autoPostAt) map[p.id] = "pending";
+      else if (p.aiTag === "small") map[p.id] = "available";
+    }
+    setPostStatuses(map);
+    setUndoAction(null);
   }, [repo.id]);
 
   const missingCount = repo.team.filter((m) => m.status === "missing").length;
 
   useEffect(() => {
-    if (postState !== "pending" || pendingCancelled) return;
+    if (!pendingPost) return;
+    setSecondsRemaining(Math.max(0, Math.round((pendingPost.autoPostAt - Date.now()) / 1000)));
     const id = setInterval(() => {
       setSecondsRemaining((prev) => {
         if (prev <= 1) {
           clearInterval(id);
-          setPostState("posted");
-          setPostedPost(pendingPost);
+          setPostStatuses((s) => ({ ...s, [pendingPost.id]: "posted" }));
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
     return () => clearInterval(id);
-  }, [postState, pendingPost, pendingCancelled]);
+  }, [pendingPost?.id]);
+
+  useEffect(() => {
+    if (!undoAction) return;
+    const t = setTimeout(() => setUndoAction(null), 4000);
+    return () => clearTimeout(t);
+  }, [undoAction]);
 
   const handleBubbleTap = (member) => {
-    if (member.id === 0) {
-      if (postState === "empty") {
-        onEditPost?.(null);
-        return;
-      }
+    if (member.id === 0 && !activePost) {
+      onEditPost?.(null);
+      return;
     }
     onMemberTap(member);
   };
 
   const handleEdit = () => {
+    if (!pendingPost) return;
     onEditPost?.({
       text: pendingPost.text,
       attachType: pendingPost.ticket ? "ticket" : pendingPost.pr ? "pr" : null,
@@ -353,36 +408,36 @@ export default function TeamConstellation({ repo, readStories, allMembers, curre
   };
 
   const handleCancel = () => {
-    setPendingCancelled(true);
+    if (!pendingPost) return;
+    setPostStatuses((s) => ({ ...s, [pendingPost.id]: "skipped" }));
   };
 
-
   const handlePostNow = () => {
-    setPostState("posted");
-    setPostedPost(pendingPost);
+    if (!pendingPost) return;
+    setPostStatuses((s) => ({ ...s, [pendingPost.id]: "posted" }));
   };
 
   const handleRetract = () => {
-    setPostState("draft");
+    if (!activePost) return;
+    setPostStatuses((s) => ({ ...s, [activePost.id]: "dismissed" }));
   };
 
-  const handleDiscard = () => {
-    setPostState("empty");
-    setPostedPost(null);
+  const handleFeedPost = (postId) => {
+    const prev = postStatuses[postId];
+    setPostStatuses((s) => ({ ...s, [postId]: "posted" }));
+    setUndoAction({ postId, previousStatus: prev, label: "Posted" });
   };
 
-  const handleRepost = () => {
-    setPostState("posted");
+  const handleFeedDismiss = (postId) => {
+    const prev = postStatuses[postId];
+    setPostStatuses((s) => ({ ...s, [postId]: "dismissed" }));
+    setUndoAction({ postId, previousStatus: prev, label: "Dismissed" });
   };
 
-  const handleDraftEdit = () => {
-    const post = postedPost;
-    onEditPost?.({
-      text: post.text,
-      attachType: post.ticket ? "ticket" : post.pr ? "pr" : null,
-      ticketTitle: post.ticket?.title || "",
-      ticketStatus: post.ticket?.status || "IN REVIEW",
-    });
+  const handleUndo = () => {
+    if (!undoAction) return;
+    setPostStatuses((s) => ({ ...s, [undoAction.postId]: undoAction.previousStatus }));
+    setUndoAction(null);
   };
 
   const handlePost = () => {
@@ -455,14 +510,15 @@ export default function TeamConstellation({ repo, readStories, allMembers, curre
       <div className="hide-scrollbar shrink-0 overflow-x-auto px-5 pt-5 pb-4">
         <div className="flex gap-4">
           {repo.me && (
-            <StoryBubble member={repo.me} isMe postState={postState} hasRelevant={false} onClick={handleBubbleTap} />
+            <StoryBubble member={repo.me} isMe postState={bubblePostState} hasRelevant={false} onClick={handleBubbleTap} />
           )}
           {[...repo.team]
             .map((member) => {
-              const memberStories = repo.stories.filter(s => s.authorId === member.id);
+              const memberStories = repo.stories.filter(s => s.authorId === member.id && s.aiTag !== "small");
               const allRead = memberStories.length > 0 && memberStories.every(s => readStories.includes(s.id));
-              const effectiveMember = allRead && member.status === "unread" ? { ...member, status: "read" } : member;
-              const hasRelevant = repo.stories.some(s => s.authorId === member.id && s.relevant && !readStories.includes(s.id));
+              const noStories = memberStories.length === 0;
+              const effectiveMember = (allRead || noStories) && member.status === "unread" ? { ...member, status: noStories ? "missing" : "read" } : member;
+              const hasRelevant = memberStories.some(s => s.relevant && !readStories.includes(s.id));
               return { member: effectiveMember, hasRelevant, allRead };
             })
             .sort((a, b) => {
@@ -482,31 +538,47 @@ export default function TeamConstellation({ repo, readStories, allMembers, curre
       <div className="flex-1 overflow-y-auto pb-[max(2.5rem,env(safe-area-inset-bottom))]">
         {repo.me ? (
           <>
-            {postState === "pending" && pendingPost && (
+            {activeStatus === "pending" && pendingPost && (
               <PendingPostCard
                 post={pendingPost}
                 secondsRemaining={secondsRemaining}
-                cancelled={pendingCancelled}
+                cancelled={false}
                 onEdit={handleEdit}
                 onCancel={handleCancel}
                 onPostNow={handlePostNow}
               />
             )}
-            {postState === "posted" && postedPost && (
-              <PostedCard post={postedPost} onRetract={handleRetract} />
+            {activeStatus === "posted" && activePost && (
+              <PostedCard post={activePost} onRetract={handleRetract} />
             )}
-            {postState === "draft" && postedPost && (
-              <DraftPostCard
-                post={postedPost}
-                onEdit={handleDraftEdit}
-                onDiscard={handleDiscard}
-                onRepost={handleRepost}
-              />
-            )}
-            {postState === "empty" && (
+            {!activePost && (
               <EmptyPostCard onPost={handlePost} />
             )}
-            <RecentDiffsFeed posts={otherPosts} />
+            {(repo.pendingPosts || []).length > 0 && (
+              <RecentDiffsFeed
+                posts={feedPosts}
+                postStatuses={postStatuses}
+                onPost={handleFeedPost}
+                onDismiss={handleFeedDismiss}
+              />
+            )}
+            <AnimatePresence>
+              {undoAction && (
+                <motion.div
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 16 }}
+                  className="sticky bottom-4 mx-5 mt-4"
+                >
+                  <div className="flex items-center justify-between rounded-2xl bg-[var(--color-charcoal)] px-5 py-3 shadow-lg">
+                    <span className="text-sm font-semibold text-white">{undoAction.label}</span>
+                    <motion.button whileTap={{ scale: 0.95 }} onClick={handleUndo} className="rounded-lg px-3 py-1 text-sm font-bold text-[var(--color-coral)]">
+                      Undo
+                    </motion.button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </>
         ) : (
           <div className="flex flex-col items-center px-5 pt-8">

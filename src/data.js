@@ -152,6 +152,7 @@ const OPENCLAW_STORIES = [
     avatar: "https://github.com/hydro13.png",
     time: "2h ago",
     text: "Changelog now reflects all recent fixes — cleaner release notes for contributors tracking changes.",
+    aiTag: "small",
     pr: {
       title: "chore: backfill changelog entries for recent fixes",
       status: "MERGED",
@@ -218,6 +219,7 @@ const OPENCLAW_STORIES = [
     avatar: "https://github.com/hydro13.png",
     time: "4h ago",
     text: "Telegram replies now validate message IDs before sending — prevents API errors on stale threads.",
+    aiTag: "small",
     pr: {
       title: "fix(telegram): validate replyToMessageId before sending to Telegram API",
       status: "MERGED",
@@ -234,6 +236,7 @@ const OPENCLAW_STORIES = [
     avatar: "https://github.com/hydro13.png",
     time: "5h ago",
     text: "BlueBubbles integration no longer crashes on null text — debounce flush is properly guarded.",
+    aiTag: "small",
     pr: {
       title: "fix(bluebubbles): guard debounce flush against null text",
       status: "MERGED",
@@ -266,6 +269,7 @@ const OPENCLAW_STORIES = [
     avatar: "https://github.com/hydro13.png",
     time: "5h ago",
     text: "CLI tab completion no longer errors on fresh zsh shells — compdef registration deferred until ready.",
+    aiTag: "small",
     pr: {
       title: "fix(cli): defer zsh compdef registration until compinit is available",
       status: "MERGED",
@@ -298,6 +302,7 @@ const OPENCLAW_STORIES = [
     avatar: "https://github.com/hydro13.png",
     time: "8h ago",
     text: "FAQ no longer links to dead Xfinity SSL troubleshooting pages — broken links cleaned up.",
+    aiTag: "small",
     pr: {
       title: "fix(docs): remove broken Xfinity SSL troubleshooting links from FAQ",
       status: "MERGED",
@@ -315,6 +320,7 @@ const OPENCLAW_STORIES = [
     avatar: "https://github.com/Takhoffman.png",
     time: "6h ago",
     text: "Dashboard setup now guides users with clearer prompts — fewer drop-offs at onboarding.",
+    aiTag: "small",
     pr: {
       title: "Improve dashboard setup command copy UX",
       status: "MERGED",
@@ -347,6 +353,7 @@ const OPENCLAW_STORIES = [
     avatar: "https://github.com/Takhoffman.png",
     time: "9h ago",
     text: "CI shard counts are now aligned between bun and Windows runners — consistent parallel test execution.",
+    aiTag: "small",
     pr: {
       title: "ci: align bun shard counts with windows",
       status: "MERGED",

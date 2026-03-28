@@ -102,7 +102,7 @@ export default function App() {
         {view === "stories" && (
           <StoryViewer
             key={`stories-${repoId}-${startAuthorId}`}
-            stories={repo.stories}
+            stories={repo.stories.filter(s => s.aiTag !== "small")}
             startAuthorId={startAuthorId}
             readStories={readStories[repoId] || []}
             onClose={() => setView("home")}
