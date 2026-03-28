@@ -231,7 +231,11 @@ export default function StoryViewer({ stories, startAuthorId, onClose }) {
   const currentStory = currentGroup[storyIndex];
 
   useEffect(() => {
-    if (containerRef.current) setContainerWidth(containerRef.current.offsetWidth);
+    if (containerRef.current) {
+      skipTransitionRef.current = true;
+      setContainerWidth(containerRef.current.offsetWidth);
+      requestAnimationFrame(() => { skipTransitionRef.current = false; });
+    }
   }, []);
 
   const counts = useMemo(() => reactionCounts[currentStory.id] || {}, [reactionCounts, currentStory.id]);
@@ -432,8 +436,6 @@ export default function StoryViewer({ stories, startAuthorId, onClose }) {
     opacity: 1 - dismissY * 0.003,
     transition: "none",
     borderRadius: "20px",
-  } : (!isDragging && dismissY === 0) ? {
-    transition: "transform 0.3s ease, opacity 0.3s ease",
   } : undefined;
 
   return (
