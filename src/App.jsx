@@ -46,11 +46,15 @@ export default function App() {
             onClose={() => setView("home")}
           />
         )}
-        {view === "post" && (
+        {postPrefill && (
           <PostUpdate
             prefill={postPrefill}
+            isOpen={view === "post"}
             onClose={() => setView("home")}
-            onPosted={() => setView("home")}
+            onPosted={() => {
+              setView("home");
+              setPostPrefill(null);
+            }}
           />
         )}
       </div>

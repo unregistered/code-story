@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Check, Clock, Plus, Pencil, X, Send, Undo2, ChevronDown } from "lucide-react";
+import { Check, Clock, Plus, Pencil, X, Send, Undo2, ChevronDown, FileEdit, Trash2, HelpCircle } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
 import { REPOS } from "../data";
 
 const TICKET_STATUS_CONFIG = {
@@ -87,7 +88,8 @@ function TicketCard({ ticket }) {
   );
 }
 
-function PendingPostCard({ post, secondsRemaining, onEdit, onCancel, onPostNow }) {
+function PendingPostCard({ post, secondsRemaining, cancelled, onEdit, onCancel, onPostNow }) {
+  const [showHelp, setShowHelp] = useState(false);
   const minutes = Math.floor(secondsRemaining / 60);
   const secs = secondsRemaining % 60;
   const totalSeconds = Math.round((post.autoPostAt - post.landedAt) / 1000);
@@ -95,19 +97,47 @@ function PendingPostCard({ post, secondsRemaining, onEdit, onCancel, onPostNow }
 
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="px-5">
-      <div className="mb-3 flex items-center gap-2">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-[color:rgba(26,24,22,0.4)]">Auto-posting in</span>
-        <span className="rounded-md bg-[var(--color-coral)] px-2 py-0.5 text-xs font-bold text-[var(--color-charcoal)]">
-          {minutes}:{secs.toString().padStart(2, "0")}
-        </span>
-      </div>
-      <div className="mb-5 h-1.5 overflow-hidden rounded-full bg-black/5">
-        <motion.div
-          className="h-full rounded-full bg-[var(--color-coral)]"
-          style={{ width: `${progressPct}%` }}
-          transition={{ duration: 0.3 }}
-        />
-      </div>
+      {!cancelled && (
+        <>
+          <div className="mb-3 flex items-center gap-2">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-[color:rgba(26,24,22,0.4)]">Auto-posting in</span>
+            <span className="rounded-md bg-[var(--color-coral)] px-2 py-0.5 text-xs font-bold text-[var(--color-charcoal)]">
+              {minutes}:{secs.toString().padStart(2, "0")}
+            </span>
+            <button onClick={() => setShowHelp(!showHelp)} className="ml-auto flex h-6 w-6 items-center justify-center rounded-full text-[color:rgba(26,24,22,0.3)] hover:text-[color:rgba(26,24,22,0.6)]">
+              <HelpCircle size={14} />
+            </button>
+            <button onClick={onCancel} className="flex h-6 w-6 items-center justify-center rounded-full text-[color:rgba(26,24,22,0.3)] hover:text-[color:rgba(26,24,22,0.6)]">
+              <X size={14} />
+            </button>
+          </div>
+          <AnimatePresence>
+            {showHelp && (
+              <motion.p
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mb-3 overflow-hidden text-xs font-medium leading-relaxed text-[color:rgba(26,24,22,0.45)]"
+              >
+                Your commits are summarized and posted automatically after landing. Edit before it goes live, post now, or cancel to skip this update.
+              </motion.p>
+            )}
+          </AnimatePresence>
+          <div className="mb-5 h-1.5 overflow-hidden rounded-full bg-black/5">
+            <motion.div
+              className="h-full rounded-full bg-[var(--color-coral)]"
+              style={{ width: `${progressPct}%` }}
+              transition={{ duration: 0.3 }}
+            />
+          </div>
+        </>
+      )}
+
+      {cancelled && (
+        <div className="mb-3">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-[color:rgba(26,24,22,0.4)]">Your Update</span>
+        </div>
+      )}
 
       <div className="rounded-2xl border border-[color:rgba(26,24,22,0.06)] bg-[color:rgba(255,255,255,0.6)] p-5 shadow-sm">
         <p className="text-base font-semibold leading-snug text-[var(--color-charcoal)]">{post.text}</p>
@@ -124,17 +154,10 @@ function PendingPostCard({ post, secondsRemaining, onEdit, onCancel, onPostNow }
         </motion.button>
         <motion.button
           whileTap={{ scale: 0.96 }}
-          onClick={onCancel}
-          className="flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-2xl border border-[color:rgba(26,24,22,0.08)] bg-[color:rgba(255,255,255,0.6)] text-sm font-bold text-[color:rgba(26,24,22,0.5)] shadow-sm"
-        >
-          <X size={14} /> Cancel
-        </motion.button>
-        <motion.button
-          whileTap={{ scale: 0.96 }}
           onClick={onPostNow}
           className="flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-2xl bg-[var(--color-charcoal)] text-sm font-bold text-white shadow-lg"
         >
-          <Send size={14} /> Post Now
+          <Send size={14} /> {cancelled ? "Post" : "Post Now"}
         </motion.button>
       </div>
     </motion.div>
@@ -163,6 +186,47 @@ function PostedCard({ post, onRetract }) {
   );
 }
 
+function DraftPostCard({ post, onEdit, onDiscard, onRepost }) {
+  return (
+    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="px-5">
+      <div className="mb-3 flex items-center gap-2">
+        <span className="text-[10px] font-bold uppercase tracking-widest text-[color:rgba(26,24,22,0.4)]">Draft</span>
+        <span className="rounded-md bg-[var(--color-warning)] px-2 py-0.5 text-[10px] font-extrabold uppercase text-white">Retracted</span>
+      </div>
+      <p className="mb-4 text-xs font-medium text-[color:rgba(26,24,22,0.4)]">
+        Your update was retracted. Edit and re-post, or discard it.
+      </p>
+      <div className="rounded-2xl border border-[color:rgba(26,24,22,0.06)] bg-[color:rgba(255,255,255,0.6)] p-5 shadow-sm">
+        <p className="text-base font-semibold leading-snug text-[var(--color-charcoal)]">{post.text}</p>
+        <TicketCard ticket={post.ticket} />
+      </div>
+      <div className="mt-5 flex gap-3">
+        <motion.button
+          whileTap={{ scale: 0.96 }}
+          onClick={onEdit}
+          className="flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-2xl border border-[color:rgba(26,24,22,0.08)] bg-[color:rgba(255,255,255,0.6)] text-sm font-bold text-[var(--color-charcoal)] shadow-sm"
+        >
+          <Pencil size={14} /> Edit
+        </motion.button>
+        <motion.button
+          whileTap={{ scale: 0.96 }}
+          onClick={onDiscard}
+          className="flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-2xl border border-[color:rgba(26,24,22,0.08)] bg-[color:rgba(255,255,255,0.6)] text-sm font-bold text-[color:rgba(26,24,22,0.5)] shadow-sm"
+        >
+          <Trash2 size={14} /> Discard
+        </motion.button>
+        <motion.button
+          whileTap={{ scale: 0.96 }}
+          onClick={onRepost}
+          className="flex min-h-[48px] flex-1 items-center justify-center gap-2 rounded-2xl bg-[var(--color-charcoal)] text-sm font-bold text-white shadow-lg"
+        >
+          <Send size={14} /> Re-post
+        </motion.button>
+      </div>
+    </motion.div>
+  );
+}
+
 function EmptyPostCard({ onPost }) {
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} className="flex flex-col items-center px-5 pt-8">
@@ -186,6 +250,7 @@ export default function TeamConstellation({ repo, onRepoChange, onMemberTap, onE
   const [secondsRemaining, setSecondsRemaining] = useState(() =>
     repo.pendingPost ? Math.max(0, Math.round((repo.pendingPost.autoPostAt - Date.now()) / 1000)) : 0
   );
+  const [pendingCancelled, setPendingCancelled] = useState(false);
   const [showRepoDropdown, setShowRepoDropdown] = useState(false);
 
   // Reset state when repo changes
@@ -194,6 +259,7 @@ export default function TeamConstellation({ repo, onRepoChange, onMemberTap, onE
     setPostState(newPostState);
     setPendingPost(repo.pendingPost);
     setPostedPost(null);
+    setPendingCancelled(false);
     setSecondsRemaining(
       repo.pendingPost ? Math.max(0, Math.round((repo.pendingPost.autoPostAt - Date.now()) / 1000)) : 0
     );
@@ -202,7 +268,7 @@ export default function TeamConstellation({ repo, onRepoChange, onMemberTap, onE
   const missingCount = repo.team.filter((m) => m.status === "missing").length;
 
   useEffect(() => {
-    if (postState !== "pending") return;
+    if (postState !== "pending" || pendingCancelled) return;
     const id = setInterval(() => {
       setSecondsRemaining((prev) => {
         if (prev <= 1) {
@@ -215,7 +281,7 @@ export default function TeamConstellation({ repo, onRepoChange, onMemberTap, onE
       });
     }, 1000);
     return () => clearInterval(id);
-  }, [postState, pendingPost]);
+  }, [postState, pendingPost, pendingCancelled]);
 
   const handleBubbleTap = (member) => {
     if (member.id === 0) {
@@ -237,9 +303,9 @@ export default function TeamConstellation({ repo, onRepoChange, onMemberTap, onE
   };
 
   const handleCancel = () => {
-    setPostState("empty");
-    setPendingPost(null);
+    setPendingCancelled(true);
   };
+
 
   const handlePostNow = () => {
     setPostState("posted");
@@ -247,8 +313,26 @@ export default function TeamConstellation({ repo, onRepoChange, onMemberTap, onE
   };
 
   const handleRetract = () => {
+    setPostState("draft");
+  };
+
+  const handleDiscard = () => {
     setPostState("empty");
     setPostedPost(null);
+  };
+
+  const handleRepost = () => {
+    setPostState("posted");
+  };
+
+  const handleDraftEdit = () => {
+    const post = postedPost;
+    onEditPost?.({
+      text: post.text,
+      attachType: post.ticket ? "ticket" : post.pr ? "pr" : null,
+      ticketTitle: post.ticket?.title || "",
+      ticketStatus: post.ticket?.status || "IN REVIEW",
+    });
   };
 
   const handlePost = () => {
@@ -328,6 +412,7 @@ export default function TeamConstellation({ repo, onRepoChange, onMemberTap, onE
               <PendingPostCard
                 post={pendingPost}
                 secondsRemaining={secondsRemaining}
+                cancelled={pendingCancelled}
                 onEdit={handleEdit}
                 onCancel={handleCancel}
                 onPostNow={handlePostNow}
@@ -335,6 +420,14 @@ export default function TeamConstellation({ repo, onRepoChange, onMemberTap, onE
             )}
             {postState === "posted" && postedPost && (
               <PostedCard post={postedPost} onRetract={handleRetract} />
+            )}
+            {postState === "draft" && postedPost && (
+              <DraftPostCard
+                post={postedPost}
+                onEdit={handleDraftEdit}
+                onDiscard={handleDiscard}
+                onRepost={handleRepost}
+              />
             )}
             {postState === "empty" && (
               <EmptyPostCard onPost={handlePost} />

@@ -10,7 +10,7 @@ const PANEL_STYLES = {
   idle: "text-[color:rgba(26,24,22,0.7)]",
 };
 
-export default function PostUpdate({ onClose, onPosted, prefill }) {
+export default function PostUpdate({ onClose, onPosted, prefill, isOpen }) {
   const [text, setText] = useState(prefill?.text || "");
   const [attachType, setAttachType] = useState(prefill?.attachType || null);
   const [prTitle, setPrTitle] = useState(prefill?.prTitle || "");
@@ -34,10 +34,10 @@ export default function PostUpdate({ onClose, onPosted, prefill }) {
   return (
     <motion.div
       initial={{ y: "100%" }}
-      animate={{ y: 0 }}
-      exit={{ y: "100%" }}
+      animate={{ y: isOpen ? 0 : "100%" }}
       transition={{ type: "spring", damping: 30, stiffness: 280 }}
       className="absolute inset-0 z-50 flex flex-col bg-[var(--color-app-bg)]"
+      style={{ pointerEvents: isOpen ? "auto" : "none" }}
     >
       <div className="flex shrink-0 items-center justify-between px-5 pt-14 pb-4">
         <h2 className="text-xl font-black tracking-tight text-[var(--color-charcoal)]">Post Update</h2>
