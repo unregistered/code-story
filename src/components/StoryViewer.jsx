@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, GitPullRequest, GitMerge, Lock, MessageCircle, Flame, Eye, Hand, CircleAlert } from "lucide-react";
+import { X, GitPullRequest, GitMerge, Lock, MessageCircle, Flame, Eye, Hand, CircleAlert, Sparkles } from "lucide-react";
 
 const AUTO_ADVANCE_DELAY = 8000;
 const FLOAT_LIFETIME = 1300;
@@ -156,8 +156,8 @@ function CubeFace({ story, stories, storyIndex }) {
       <div className="absolute inset-x-0 top-0 px-4 pt-12">
         <div className="mb-4 flex gap-1.5">
           {stories.map((s, i) => (
-            <div key={s.id} className="h-[3px] flex-1 overflow-hidden rounded-full bg-black/10">
-              {i < storyIndex && <div className="h-full w-full bg-[var(--color-charcoal)]" />}
+            <div key={s.id} className={`h-[3px] flex-1 overflow-hidden rounded-full ${s.relevant ? "bg-[color:rgba(168,85,247,0.3)]" : "bg-black/10"}`}>
+              {i < storyIndex && <div className={`h-full w-full ${s.relevant ? "bg-[var(--color-relevant)]" : "bg-[var(--color-charcoal)]"}`} />}
             </div>
           ))}
         </div>
@@ -471,20 +471,24 @@ export default function StoryViewer({ stories, startAuthorId, onClose }) {
             {/* Progress + author header */}
             <div className="absolute inset-x-0 top-0 z-20 px-4 pt-12">
               <div className="mb-4 flex gap-1.5">
-                {currentGroup.map((story, index) => (
-                  <div key={story.id} className="h-[3px] flex-1 overflow-hidden rounded-full bg-black/10">
-                    {index < storyIndex && <div className="h-full w-full bg-[var(--color-charcoal)]" />}
-                    {index === storyIndex && (
-                      <motion.div
-                        key={progressKey}
-                        className="h-full bg-[var(--color-charcoal)]"
-                        initial={{ width: "0%" }}
-                        animate={{ width: "100%" }}
-                        transition={{ duration: AUTO_ADVANCE_DELAY / 1000, ease: "linear" }}
-                      />
-                    )}
-                  </div>
-                ))}
+                {currentGroup.map((story, index) => {
+                  const barColor = story.relevant ? "bg-[var(--color-relevant)]" : "bg-[var(--color-charcoal)]";
+                  const trackColor = story.relevant ? "bg-[color:rgba(168,85,247,0.3)]" : "bg-black/10";
+                  return (
+                    <div key={story.id} className={`h-[3px] flex-1 overflow-hidden rounded-full ${trackColor}`}>
+                      {index < storyIndex && <div className={`h-full w-full ${barColor}`} />}
+                      {index === storyIndex && (
+                        <motion.div
+                          key={progressKey}
+                          className={`h-full ${barColor}`}
+                          initial={{ width: "0%" }}
+                          animate={{ width: "100%" }}
+                          transition={{ duration: AUTO_ADVANCE_DELAY / 1000, ease: "linear" }}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
               <div className="flex items-center gap-3">
                 <div className="h-10 w-10 overflow-hidden rounded-full border border-black/5 shadow-sm">
@@ -506,6 +510,12 @@ export default function StoryViewer({ stories, startAuthorId, onClose }) {
               <p className="mt-3 text-xs font-medium text-[color:rgba(26,24,22,0.3)]">
                 Summarized by Minimax M2.7
               </p>
+              {currentStory.relevant && (
+                <div className="pointer-events-auto mt-3 inline-flex items-start gap-2 rounded-xl bg-[color:rgba(168,85,247,0.1)] px-3 py-2">
+                  <Sparkles size={13} className="mt-0.5 shrink-0 text-[var(--color-relevant)]" />
+                  <p className="text-xs font-medium leading-snug text-[var(--color-relevant)]">{currentStory.relevant}</p>
+                </div>
+              )}
               <AttachedCard story={currentStory} />
             </div>
           </div>

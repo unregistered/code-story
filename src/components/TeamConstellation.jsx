@@ -12,10 +12,11 @@ const TICKET_STATUS_CONFIG = {
   OPEN: { badgeClass: "bg-[var(--color-warning)] text-white", label: "Open" },
 };
 
-function StoryBubble({ member, isMe, postState, onClick }) {
+function StoryBubble({ member, isMe, postState, hasRelevant, onClick }) {
   const isUnread = member.status === "unread";
   const isMissing = member.status === "missing";
   const isRead = member.status === "read" || member.status === "posted";
+  const ringColor = hasRelevant && isUnread && !isMe ? "var(--color-relevant)" : "var(--color-coral)";
 
   const meBadge = postState === "posted"
     ? { bg: "bg-[var(--color-sage)]", icon: <Check size={10} strokeWidth={3} /> }
@@ -34,7 +35,8 @@ function StoryBubble({ member, isMe, postState, onClick }) {
       <div className="relative h-16 w-16">
         {isUnread && !isMe && (
           <motion.div
-            className="absolute inset-0 rounded-full border-[3px] border-[var(--color-coral)]"
+            className="absolute inset-0 rounded-full border-[3px]"
+            style={{ borderColor: ringColor }}
             animate={{ scale: [1, 1.1, 1], opacity: [0.8, 0.3, 0.8] }}
             transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
           />
@@ -42,11 +44,12 @@ function StoryBubble({ member, isMe, postState, onClick }) {
         <div
           className={`absolute inset-0 rounded-full border-[3px] ${
             isUnread && !isMe
-              ? "border-[var(--color-coral)]"
+              ? ""
               : isMissing
                 ? "border-dashed border-[color:rgba(26,24,22,0.2)]"
                 : "border-[color:rgba(26,24,22,0.1)]"
           }`}
+          style={isUnread && !isMe ? { borderColor: ringColor } : undefined}
         />
         <div className={`absolute inset-[6px] overflow-hidden rounded-full ${isRead && !isMe ? "opacity-55 saturate-50" : ""}`}>
           <img src={member.avatar} alt={member.name} className="h-full w-full rounded-full bg-[var(--color-faint)] object-cover" />
@@ -63,7 +66,7 @@ function StoryBubble({ member, isMe, postState, onClick }) {
           </div>
         )}
         {isUnread && !isMe && (
-          <div className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full border-2 border-[var(--color-app-bg)] bg-[var(--color-coral)]" />
+          <div className="absolute -top-0.5 -right-0.5 h-4 w-4 rounded-full border-2 border-[var(--color-app-bg)]" style={{ backgroundColor: ringColor }} />
         )}
       </div>
       <p className={`mt-1.5 text-[11px] font-bold leading-none ${isUnread && !isMe ? "text-[var(--color-charcoal)]" : "text-[color:rgba(26,24,22,0.5)]"}`}>
@@ -394,11 +397,14 @@ export default function TeamConstellation({ repo, onRepoChange, onMemberTap, onE
       <div className="hide-scrollbar shrink-0 overflow-x-auto px-5 pt-5 pb-4">
         <div className="flex gap-4">
           {repo.me && (
-            <StoryBubble member={repo.me} isMe postState={postState} onClick={handleBubbleTap} />
+            <StoryBubble member={repo.me} isMe postState={postState} hasRelevant={false} onClick={handleBubbleTap} />
           )}
-          {repo.team.map((member) => (
-            <StoryBubble key={member.id} member={member} isMe={false} postState="empty" onClick={handleBubbleTap} />
-          ))}
+          {repo.team.map((member) => {
+            const hasRelevant = repo.stories.some(s => s.authorId === member.id && s.relevant);
+            return (
+              <StoryBubble key={member.id} member={member} isMe={false} postState="empty" hasRelevant={hasRelevant} onClick={handleBubbleTap} />
+            );
+          })}
         </div>
       </div>
 

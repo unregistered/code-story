@@ -158,6 +158,7 @@ const OPENCLAW_STORIES = [
     avatar: "https://github.com/hydro13.png",
     time: "3h ago",
     text: "Auto-reply no longer leaks raw JSON to users — NO_REPLY payloads are suppressed before delivery.",
+    relevant: "Relevant to your work on channel delivery — this fixes payload formatting before messages reach users",
     pr: {
       title: "fix(auto-reply): suppress JSON-wrapped NO_REPLY payloads before channel delivery",
       status: "MERGED",
@@ -174,6 +175,7 @@ const OPENCLAW_STORIES = [
     avatar: "https://github.com/hydro13.png",
     time: "4h ago",
     text: "Long Telegram messages now split at word boundaries — no more cut-off words in multi-part replies.",
+    relevant: "Relevant to your work on channel delivery — improves message formatting in the same pipeline you're touching",
     pr: {
       title: "fix(telegram): split long messages at word boundaries instead of mid-word",
       status: "MERGED",
@@ -471,6 +473,7 @@ const OPENCLAW_STORIES = [
     avatar: "https://github.com/BradGroux.png",
     time: "19h ago",
     text: "Teams messages now deliver progressively with proper streaming config — smoother real-time responses.",
+    relevant: "Relevant to your work on channel delivery — adds streaming support to the Teams delivery path",
     pr: {
       title: "fix(msteams): wire blockStreaming config and onBlockReply for progressive message delivery",
       status: "MERGED",
@@ -505,6 +508,7 @@ const OPENCLAW_STORIES = [
     avatar: "https://github.com/SidU.png",
     time: "21h ago",
     text: "Teams stream state now resets after tool calls — no more dropped messages during multi-step workflows.",
+    relevant: "Relevant to your work on channel delivery — prevents message loss during multi-step tool flows",
     pr: {
       title: "fix(msteams): reset stream state after tool calls to prevent message loss",
       status: "MERGED",
