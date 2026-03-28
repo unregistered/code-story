@@ -4,6 +4,13 @@ import StoryViewer from "./components/StoryViewer";
 import PostUpdate from "./components/PostUpdate";
 import { REPOS } from "./data";
 
+const ONBOARDING_STORIES = [
+  { id: "onb-4", authorId: "onboarding", author: "Eazo Story", avatar: "/favicon.svg", role: "Try it now", time: "now", text: "**No meetings. Just tap.**", reactions: {} },
+  { id: "onb-3", authorId: "onboarding", author: "Eazo Story", avatar: "/favicon.svg", role: "Smart relevance", time: "now", text: "It highlights **changes that impact your work.**", reactions: {} },
+  { id: "onb-2", authorId: "onboarding", author: "Eazo Story", avatar: "/favicon.svg", role: "AI-powered recaps", time: "now", text: "AI turns PRs into **3-second recaps.**", reactions: {} },
+  { id: "onb-1", authorId: "onboarding", author: "Eazo Story", avatar: "/favicon.svg", role: "The problem with standups", time: "now", text: "30 minutes of standup. 2 minutes of useful info. **Something's broken.**", reactions: {} },
+];
+
 function getAllMembers(rawRepo) {
   const members = [...rawRepo.team];
   if (rawRepo.me) members.push(rawRepo.me);
@@ -42,6 +49,7 @@ export default function App() {
   const [startAuthorId, setStartAuthorId] = useState(null);
   const [postPrefill, setPostPrefill] = useState(null);
   const [repoId, setRepoId] = useState("openclaw");
+  const [showOnboarding, setShowOnboarding] = useState(() => !localStorage.getItem("hasSeenOnboarding"));
 
   const [readStories, setReadStories] = useState(() => {
     try {
@@ -84,8 +92,10 @@ export default function App() {
   const handleResetData = useCallback(() => {
     localStorage.removeItem("readStories");
     localStorage.removeItem("meOverrides");
+    localStorage.removeItem("hasSeenOnboarding");
     setReadStories({});
     setMeOverrides({});
+    setShowOnboarding(true);
   }, []);
 
   const handleMemberTap = (member) => {
@@ -118,6 +128,18 @@ export default function App() {
           onMemberTap={handleMemberTap}
           onEditPost={handleEditPost}
         />
+
+        {showOnboarding && (
+          <StoryViewer
+            stories={ONBOARDING_STORIES}
+            startAuthorId="onboarding"
+            onboarding
+            onClose={() => {
+              localStorage.setItem("hasSeenOnboarding", "1");
+              setShowOnboarding(false);
+            }}
+          />
+        )}
 
         {view === "stories" && (
           <StoryViewer

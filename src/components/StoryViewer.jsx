@@ -188,7 +188,7 @@ function CubeFace({ story, stories, storyIndex }) {
   );
 }
 
-export default function StoryViewer({ stories, startAuthorId, readStories = [], onClose, onView }) {
+export default function StoryViewer({ stories, startAuthorId, readStories = [], onClose, onView, onboarding = false }) {
   // Group stories by author, preserving first-appearance order
   const storyGroups = useMemo(() => {
     const groups = [];
@@ -522,7 +522,7 @@ export default function StoryViewer({ stories, startAuthorId, readStories = [], 
                 <div>
                   <p className="text-sm font-bold leading-none text-[var(--color-charcoal)]">{currentStory.author}</p>
                   <p className="mt-0.5 text-xs font-medium text-black/40">
-                    {currentStory.role} · {currentStory.time}
+                    {onboarding ? currentStory.role : `${currentStory.role} · ${currentStory.time}`}
                   </p>
                 </div>
               </div>
@@ -536,9 +536,20 @@ export default function StoryViewer({ stories, startAuthorId, readStories = [], 
                     : <span key={i} className="font-medium opacity-45">{part}</span>
                 )}
               </h1>
-              <p className="mt-3 text-xs font-medium text-[color:rgba(26,24,22,0.3)]">
-                Summarized by Minimax M2.7
-              </p>
+              {!onboarding && (
+                <p className="mt-3 text-xs font-medium text-[color:rgba(26,24,22,0.3)]">
+                  Summarized by Minimax M2.7
+                </p>
+              )}
+              {onboarding && personIndex === storyGroups.length - 1 && storyIndex === currentGroup.length - 1 && (
+                <motion.button
+                  whileTap={{ scale: 0.96 }}
+                  onClick={(e) => { e.stopPropagation(); onClose?.(); }}
+                  className="pointer-events-auto mt-6 rounded-full bg-[var(--color-charcoal)] px-8 py-3.5 text-sm font-bold text-white shadow-lg"
+                >
+                  Get Started
+                </motion.button>
+              )}
               {currentStory.relevant && (
                 <div className="pointer-events-auto mt-3 inline-flex items-start gap-2 rounded-xl bg-[color:rgba(168,85,247,0.1)] px-3 py-2">
                   <Sparkles size={13} className="mt-0.5 shrink-0 text-[var(--color-relevant)]" />
@@ -580,9 +591,15 @@ export default function StoryViewer({ stories, startAuthorId, readStories = [], 
       <div className="pointer-events-none absolute inset-0 z-30">
         {/* X button */}
         <div className="pointer-events-auto absolute top-[4.5rem] right-4">
-          <motion.button whileTap={{ scale: 0.9 }} onClick={onClose} className="flex h-11 w-11 items-center justify-center rounded-full bg-black/8">
-            <X size={16} strokeWidth={2.5} className="text-black/60" />
-          </motion.button>
+          {onboarding ? (
+            <motion.button whileTap={{ scale: 0.95 }} onClick={onClose} className="px-3 py-2 text-sm font-semibold text-black/50">
+              Skip
+            </motion.button>
+          ) : (
+            <motion.button whileTap={{ scale: 0.9 }} onClick={onClose} className="flex h-11 w-11 items-center justify-center rounded-full bg-black/8">
+              <X size={16} strokeWidth={2.5} className="text-black/60" />
+            </motion.button>
+          )}
         </div>
 
         {/* Floating reactions */}
@@ -600,41 +617,43 @@ export default function StoryViewer({ stories, startAuthorId, readStories = [], 
         )}
 
         {/* Comment bar */}
-        <div className="pointer-events-auto absolute right-4 left-4 bottom-[max(2rem,env(safe-area-inset-bottom))]">
-          {showReplyInput ? (
-            <div className="flex items-center gap-2" onClick={(event) => event.stopPropagation()}>
-              <input
-                autoFocus
-                value={replyText}
-                onChange={(event) => setReplyText(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") handleReplySubmit();
-                  if (event.key === "Escape") setShowReplyInput(false);
-                }}
-                placeholder={`Reply to ${currentStory.author.split(" ")[0]}...`}
-                className="h-14 flex-1 rounded-full border border-white/50 bg-white/70 px-5 text-base font-medium text-[var(--color-charcoal)] shadow-md backdrop-blur-md placeholder:text-black/30"
-              />
-              <motion.button whileTap={{ scale: 0.92 }} onClick={handleReplySubmit} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--color-charcoal)]">
-                <MessageCircle size={18} className="text-white" />
-              </motion.button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <motion.button
-                whileTap={{ scale: 0.98 }}
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setShowReplyInput(true);
-                  clearTimeout(progressTimerRef.current);
-                }}
-                className="flex h-14 flex-1 items-center rounded-full border border-white/50 bg-white/40 px-5 text-left text-sm font-medium text-black/40 shadow-sm backdrop-blur-md"
-              >
-                {replySent ? "Comment sent" : "Comment..."}
-              </motion.button>
-              <ReactionButton type="fire" count={counts.fire || 0} onPress={(event) => { event.stopPropagation(); addReaction("fire"); }} />
-            </div>
-          )}
-        </div>
+        {!onboarding && (
+          <div className="pointer-events-auto absolute right-4 left-4 bottom-[max(2rem,env(safe-area-inset-bottom))]">
+            {showReplyInput ? (
+              <div className="flex items-center gap-2" onClick={(event) => event.stopPropagation()}>
+                <input
+                  autoFocus
+                  value={replyText}
+                  onChange={(event) => setReplyText(event.target.value)}
+                  onKeyDown={(event) => {
+                    if (event.key === "Enter") handleReplySubmit();
+                    if (event.key === "Escape") setShowReplyInput(false);
+                  }}
+                  placeholder={`Reply to ${currentStory.author.split(" ")[0]}...`}
+                  className="h-14 flex-1 rounded-full border border-white/50 bg-white/70 px-5 text-base font-medium text-[var(--color-charcoal)] shadow-md backdrop-blur-md placeholder:text-black/30"
+                />
+                <motion.button whileTap={{ scale: 0.92 }} onClick={handleReplySubmit} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--color-charcoal)]">
+                  <MessageCircle size={18} className="text-white" />
+                </motion.button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setShowReplyInput(true);
+                    clearTimeout(progressTimerRef.current);
+                  }}
+                  className="flex h-14 flex-1 items-center rounded-full border border-white/50 bg-white/40 px-5 text-left text-sm font-medium text-black/40 shadow-sm backdrop-blur-md"
+                >
+                  {replySent ? "Comment sent" : "Comment..."}
+                </motion.button>
+                <ReactionButton type="fire" count={counts.fire || 0} onPress={(event) => { event.stopPropagation(); addReaction("fire"); }} />
+              </div>
+            )}
+          </div>
+        )}
 
         {replySent && (
           <div className="absolute left-6 bottom-28 inline-flex items-center gap-2 rounded-full bg-[var(--color-charcoal)] px-3 py-2 text-xs font-semibold text-white shadow-md">
