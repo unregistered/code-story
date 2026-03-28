@@ -287,8 +287,8 @@ export default function TeamConstellation({ repo, onRepoChange, onMemberTap, onE
     if (member.id === 0) {
       if (postState === "empty") {
         onEditPost?.(null);
+        return;
       }
-      return;
     }
     onMemberTap(member);
   };
