@@ -360,6 +360,8 @@ export default function StoryViewer({ startAuthorId, onClose }) {
           setIsAnimating(true);
           setCubeAngle(goingNext ? -90 : 90);
 
+          const remaining = (90 - Math.abs(angle)) / 90;
+          const duration = Math.max(250, remaining * 1000);
           setTimeout(() => {
             skipTransitionRef.current = true;
             setPersonIndex(p => goingNext ? p + 1 : p - 1);
@@ -371,7 +373,7 @@ export default function StoryViewer({ startAuthorId, onClose }) {
             setReplySent(false);
             setProgressKey(v => v + 1);
             requestAnimationFrame(() => { skipTransitionRef.current = false; });
-          }, 1000);
+          }, duration);
         } else {
           setCubeAngle(0);
           setIsDragging(false);
@@ -441,8 +443,14 @@ export default function StoryViewer({ startAuthorId, onClose }) {
       className="absolute inset-0 z-50 overflow-hidden bg-[var(--color-app-bg)]"
       style={outerStyle}
     >
+      {/* Tap zones */}
+      <div className="absolute inset-0 z-20">
+        <div className="absolute inset-y-0 left-0 w-1/3" onClick={(event) => { event.stopPropagation(); if (!swipedRef.current && !isAnimating) goPrev(); }} />
+        <div className="absolute inset-y-0 right-0 w-2/3" onClick={(event) => { event.stopPropagation(); if (!swipedRef.current && !isAnimating && !showReplyInput) goNext(); }} />
+      </div>
+
       {/* 3D cube container */}
-      <div style={{ perspective: `${containerWidth * 2}px` }} className="absolute inset-0">
+      <div style={{ perspective: `${containerWidth * 2}px` }} className="absolute inset-0 z-10">
         <div
           className="relative h-full w-full"
           style={{
@@ -451,7 +459,7 @@ export default function StoryViewer({ startAuthorId, onClose }) {
             transition: cubeTransition,
           }}
         >
-          {/* FRONT face — current story (interactive) */}
+          {/* FRONT face — current story */}
           <div
             className="absolute inset-0 bg-[var(--color-app-bg)]"
             style={{
@@ -459,12 +467,8 @@ export default function StoryViewer({ startAuthorId, onClose }) {
               backfaceVisibility: "hidden",
             }}
           >
-            {/* Tap zones */}
-            <div className="absolute inset-y-0 left-0 z-20 w-1/3" onClick={(event) => { event.stopPropagation(); if (!swipedRef.current && !isAnimating) goPrev(); }} />
-            <div className="absolute inset-y-0 right-0 z-20 w-2/3" onClick={(event) => { event.stopPropagation(); if (!swipedRef.current && !isAnimating && !showReplyInput) goNext(); }} />
-
-            {/* Progress + header */}
-            <div className="pointer-events-none absolute inset-x-0 top-0 z-30 px-4 pt-12">
+            {/* Progress + author header */}
+            <div className="absolute inset-x-0 top-0 z-20 px-4 pt-12">
               <div className="mb-4 flex gap-1.5">
                 {currentGroup.map((story, index) => (
                   <div key={story.id} className="h-[3px] flex-1 overflow-hidden rounded-full bg-black/10">
@@ -481,26 +485,20 @@ export default function StoryViewer({ startAuthorId, onClose }) {
                   </div>
                 ))}
               </div>
-              <div className="pointer-events-auto flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 overflow-hidden rounded-full border border-black/5 shadow-sm">
-                    <img src={currentStory.avatar} alt={currentStory.author} className="h-full w-full object-cover" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold leading-none text-[var(--color-charcoal)]">{currentStory.author}</p>
-                    <p className="mt-0.5 text-xs font-medium text-black/40">
-                      {currentStory.role} · {currentStory.time}
-                    </p>
-                  </div>
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 overflow-hidden rounded-full border border-black/5 shadow-sm">
+                  <img src={currentStory.avatar} alt={currentStory.author} className="h-full w-full object-cover" />
                 </div>
-                <motion.button whileTap={{ scale: 0.9 }} onClick={onClose} className="flex h-11 w-11 items-center justify-center rounded-full bg-black/8 pointer-events-auto">
-                  <X size={16} strokeWidth={2.5} className="text-black/60" />
-                </motion.button>
+                <div>
+                  <p className="text-sm font-bold leading-none text-[var(--color-charcoal)]">{currentStory.author}</p>
+                  <p className="mt-0.5 text-xs font-medium text-black/40">
+                    {currentStory.role} · {currentStory.time}
+                  </p>
+                </div>
               </div>
             </div>
 
-            {/* Story content */}
-            <div className="pointer-events-none absolute inset-0 z-10 flex flex-col justify-center px-6">
+            <div className="pointer-events-none absolute inset-0 flex flex-col justify-center px-6">
               <h1 className="text-[2.5rem] font-black leading-[1.06] tracking-tighter text-[var(--color-charcoal)]">
                 {currentStory.text}
               </h1>
@@ -509,57 +507,6 @@ export default function StoryViewer({ startAuthorId, onClose }) {
               </p>
               <AttachedCard story={currentStory} />
             </div>
-
-            {/* Floating reactions */}
-            <AnimatePresence>
-              {floatingReactions.map((reaction) => (
-                <FloatingReaction key={reaction.id} reaction={reaction} />
-              ))}
-            </AnimatePresence>
-
-            {/* Comment bar */}
-            <div className="pointer-events-auto absolute right-4 left-4 bottom-[max(2rem,env(safe-area-inset-bottom))] z-30">
-              {showReplyInput ? (
-                <div className="flex items-center gap-2" onClick={(event) => event.stopPropagation()}>
-                  <input
-                    autoFocus
-                    value={replyText}
-                    onChange={(event) => setReplyText(event.target.value)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter") handleReplySubmit();
-                      if (event.key === "Escape") setShowReplyInput(false);
-                    }}
-                    placeholder={`Reply to ${currentStory.author.split(" ")[0]}...`}
-                    className="h-14 flex-1 rounded-full border border-white/50 bg-white/70 px-5 text-base font-medium text-[var(--color-charcoal)] shadow-md backdrop-blur-md placeholder:text-black/30"
-                  />
-                  <motion.button whileTap={{ scale: 0.92 }} onClick={handleReplySubmit} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--color-charcoal)]">
-                    <MessageCircle size={18} className="text-white" />
-                  </motion.button>
-                </div>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <motion.button
-                    whileTap={{ scale: 0.98 }}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      setShowReplyInput(true);
-                      clearTimeout(progressTimerRef.current);
-                    }}
-                    className="flex h-14 flex-1 items-center rounded-full border border-white/50 bg-white/40 px-5 text-left text-sm font-medium text-black/40 shadow-sm backdrop-blur-md"
-                  >
-                    {replySent ? "Comment sent" : "Comment..."}
-                  </motion.button>
-                  <ReactionButton type="fire" count={counts.fire || 0} onPress={(event) => { event.stopPropagation(); addReaction("fire"); }} />
-                </div>
-              )}
-            </div>
-
-            {replySent && (
-              <div className="absolute left-6 bottom-28 z-30 inline-flex items-center gap-2 rounded-full bg-[var(--color-charcoal)] px-3 py-2 text-xs font-semibold text-white shadow-md">
-                <CircleAlert size={14} />
-                Reply sent
-              </div>
-            )}
           </div>
 
           {/* LEFT face — previous person's first story */}
@@ -588,6 +535,67 @@ export default function StoryViewer({ startAuthorId, onClose }) {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Fixed UI chrome — stays above cube rotation */}
+      <div className="pointer-events-none absolute inset-0 z-30">
+        {/* X button */}
+        <div className="pointer-events-auto absolute top-[4.5rem] right-4">
+          <motion.button whileTap={{ scale: 0.9 }} onClick={onClose} className="flex h-11 w-11 items-center justify-center rounded-full bg-black/8">
+            <X size={16} strokeWidth={2.5} className="text-black/60" />
+          </motion.button>
+        </div>
+
+        {/* Floating reactions */}
+        <AnimatePresence>
+          {floatingReactions.map((reaction) => (
+            <FloatingReaction key={reaction.id} reaction={reaction} />
+          ))}
+        </AnimatePresence>
+
+        {/* Comment bar */}
+        <div className="pointer-events-auto absolute right-4 left-4 bottom-[max(2rem,env(safe-area-inset-bottom))]">
+          {showReplyInput ? (
+            <div className="flex items-center gap-2" onClick={(event) => event.stopPropagation()}>
+              <input
+                autoFocus
+                value={replyText}
+                onChange={(event) => setReplyText(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") handleReplySubmit();
+                  if (event.key === "Escape") setShowReplyInput(false);
+                }}
+                placeholder={`Reply to ${currentStory.author.split(" ")[0]}...`}
+                className="h-14 flex-1 rounded-full border border-white/50 bg-white/70 px-5 text-base font-medium text-[var(--color-charcoal)] shadow-md backdrop-blur-md placeholder:text-black/30"
+              />
+              <motion.button whileTap={{ scale: 0.92 }} onClick={handleReplySubmit} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--color-charcoal)]">
+                <MessageCircle size={18} className="text-white" />
+              </motion.button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <motion.button
+                whileTap={{ scale: 0.98 }}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setShowReplyInput(true);
+                  clearTimeout(progressTimerRef.current);
+                }}
+                className="flex h-14 flex-1 items-center rounded-full border border-white/50 bg-white/40 px-5 text-left text-sm font-medium text-black/40 shadow-sm backdrop-blur-md"
+              >
+                {replySent ? "Comment sent" : "Comment..."}
+              </motion.button>
+              <ReactionButton type="fire" count={counts.fire || 0} onPress={(event) => { event.stopPropagation(); addReaction("fire"); }} />
+            </div>
+          )}
+        </div>
+
+        {replySent && (
+          <div className="absolute left-6 bottom-28 inline-flex items-center gap-2 rounded-full bg-[var(--color-charcoal)] px-3 py-2 text-xs font-semibold text-white shadow-md">
+            <CircleAlert size={14} />
+            Reply sent
+          </div>
+        )}
       </div>
     </div>
   );

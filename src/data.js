@@ -1,4 +1,4 @@
-export const TEAM = [
+const OPENCLAW_TEAM = [
   {
     id: 1,
     name: "Robin Waslander",
@@ -85,7 +85,7 @@ export const TEAM = [
   },
 ];
 
-export const ME = {
+const OPENCLAW_ME = {
   id: 0,
   name: "Gustavo Santana",
   role: "Contributor",
@@ -93,14 +93,14 @@ export const ME = {
   status: "posted",
 };
 
-export const PENDING_POST = {
+const OPENCLAW_PENDING_POST = {
   text: "Matrix direct messages now route to the correct room — fixes misdelivered outbound messages in federated setups.",
   ticket: { title: "fix(matrix): align outbound direct-room selection", status: "MERGED" },
   landedAt: Date.now() - 2 * 60 * 1000,
   autoPostAt: Date.now() + 8 * 60 * 1000,
 };
 
-export const STORIES = [
+const OPENCLAW_STORIES = [
   // Robin Waslander — 11 PRs
   {
     id: 1,
@@ -529,5 +529,124 @@ export const STORIES = [
       url: "https://github.com/openclaw/openclaw/pull/56077",
     },
     reactions: { fire: 3, eyes: 1, hand: 0 },
+  },
+];
+
+const MINIMAX_TEAM = [
+  {
+    id: 1,
+    name: "divitkashyap",
+    role: "Contributor",
+    avatar: "https://github.com/divitkashyap.png",
+    status: "unread",
+  },
+  {
+    id: 2,
+    name: "JithendraNara",
+    role: "Contributor",
+    avatar: "https://github.com/JithendraNara.png",
+    status: "unread",
+  },
+  {
+    id: 3,
+    name: "dewu0224",
+    role: "Contributor",
+    avatar: "https://github.com/dewu0224.png",
+    status: "unread",
+  },
+  {
+    id: 4,
+    name: "liyuan97",
+    role: "Contributor",
+    avatar: "https://github.com/liyuan97.png",
+    status: "unread",
+  },
+];
+
+const MINIMAX_STORIES = [
+  {
+    id: 1,
+    authorId: 1,
+    author: "divitkashyap",
+    role: "Contributor",
+    avatar: "https://github.com/divitkashyap.png",
+    time: "1d ago",
+    text: "New image analysis skill with OCR, UI review, and chart extraction — vision-powered workflows just got way more capable.",
+    pr: {
+      title: "feat(vision-analysis): add image analysis skill with OCR, UI review, and chart extraction",
+      status: "MERGED",
+      number: "#21",
+      url: "https://github.com/MiniMax-AI/skills/pull/21",
+    },
+    reactions: { fire: 5, eyes: 2, hand: 0 },
+  },
+  {
+    id: 2,
+    authorId: 2,
+    author: "JithendraNara",
+    role: "Contributor",
+    avatar: "https://github.com/JithendraNara.png",
+    time: "1d ago",
+    text: "Added Cursor install guide and VS Code note — easier onboarding for new contributors.",
+    pr: {
+      title: "docs: add Cursor install guide and VS Code note",
+      status: "MERGED",
+      number: "#25",
+      url: "https://github.com/MiniMax-AI/skills/pull/25",
+    },
+    reactions: { fire: 2, eyes: 1, hand: 0 },
+  },
+  {
+    id: 3,
+    authorId: 3,
+    author: "dewu0224",
+    role: "Contributor",
+    avatar: "https://github.com/dewu0224.png",
+    time: "1d ago",
+    text: "Image processing now uses temp files for jq — fixes Windows command-line length limit crashes.",
+    pr: {
+      title: "fix(image): use temp files for jq to avoid Windows command-line length limit",
+      status: "MERGED",
+      number: "#34",
+      url: "https://github.com/MiniMax-AI/skills/pull/34",
+    },
+    reactions: { fire: 3, eyes: 1, hand: 0 },
+  },
+  {
+    id: 4,
+    authorId: 4,
+    author: "liyuan97",
+    role: "Contributor",
+    avatar: "https://github.com/liyuan97.png",
+    time: "1d ago",
+    text: "Plan limits added and video constraints locked to 768P/6s — tighter resource controls for MiniMax generation.",
+    pr: {
+      title: "feat(minimax): add plan limits & fix video constraints to 768P/6s only",
+      status: "MERGED",
+      number: "#39",
+      url: "https://github.com/MiniMax-AI/skills/pull/39",
+    },
+    reactions: { fire: 4, eyes: 3, hand: 0 },
+  },
+];
+
+export const REPOS = [
+  {
+    id: "openclaw",
+    name: "Openclaw",
+    fullName: "openclaw/openclaw",
+    team: OPENCLAW_TEAM,
+    me: OPENCLAW_ME,
+    pendingPost: OPENCLAW_PENDING_POST,
+    stories: OPENCLAW_STORIES,
+  },
+  {
+    id: "minimax-skills",
+    name: "MiniMax Skills",
+    fullName: "MiniMax-AI/skills",
+    team: MINIMAX_TEAM,
+    me: null,
+    pendingPost: null,
+    stories: MINIMAX_STORIES,
   },
 ];
