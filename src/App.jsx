@@ -6,9 +6,7 @@ import PostUpdate from "./components/PostUpdate";
 
 const shellStyle = {
   width: "100%",
-  maxWidth: "390px",
   height: "100dvh",
-  maxHeight: "844px",
 };
 
 export default function App() {
@@ -30,7 +28,7 @@ export default function App() {
     <div className="flex min-h-svh w-full items-center justify-center bg-[var(--color-shell)]">
       <motion.div
         style={shellStyle}
-        className="relative overflow-hidden bg-[var(--color-app-bg)] shadow-[0_25px_60px_rgba(0,0,0,0.55)] sm:h-[844px] sm:rounded-[40px] sm:border-[8px] sm:border-black"
+        className="relative overflow-hidden bg-[var(--color-app-bg)] sm:max-w-[390px] sm:max-h-[844px] sm:h-[844px] sm:rounded-[40px] sm:border-[8px] sm:border-black sm:shadow-[0_25px_60px_rgba(0,0,0,0.55)]"
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35, ease: "easeOut" }}
