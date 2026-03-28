@@ -10,11 +10,31 @@ function getAllMembers(rawRepo) {
   return members;
 }
 
+function parseTimeAgo(str) {
+  const m = str.match(/(\d+)(m|h|d)/);
+  if (!m) return 0;
+  return m[2] === "d" ? m[1] * 1440 : m[2] === "h" ? m[1] * 60 : +m[1];
+}
+
 function deriveRepo(rawRepo, meId) {
   const all = getAllMembers(rawRepo);
   const me = all.find((m) => m.id === meId) || null;
   const team = all.filter((m) => m.id !== meId);
-  return { ...rawRepo, me, team };
+
+  const defaultMeId = rawRepo.me?.id ?? null;
+  let pendingPosts = rawRepo.pendingPosts || [];
+  if (me && meId !== defaultMeId) {
+    const mySmall = rawRepo.stories.filter(s => s.authorId === meId && s.aiTag === "small");
+    pendingPosts = mySmall.map(s => ({
+      id: s.id,
+      text: s.text,
+      ticket: s.pr ? { title: s.pr.title, status: s.pr.status } : null,
+      landedAt: Date.now() - parseTimeAgo(s.time) * 60000,
+      aiTag: "small",
+    }));
+  }
+
+  return { ...rawRepo, me, team, pendingPosts };
 }
 
 export default function App() {
