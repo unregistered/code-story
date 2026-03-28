@@ -157,12 +157,12 @@ function ReactionButton({ type, count, onPress }) {
   );
 }
 
-function CubeFace({ story, storyIndex }) {
+function CubeFace({ story, stories, storyIndex }) {
   return (
     <div className="absolute inset-0 bg-[var(--color-app-bg)]">
       <div className="absolute inset-x-0 top-0 px-4 pt-12">
         <div className="mb-4 flex gap-1.5">
-          {STORIES.map((s, i) => (
+          {stories.map((s, i) => (
             <div key={s.id} className="h-[3px] flex-1 overflow-hidden rounded-full bg-black/10">
               {i < storyIndex && <div className="h-full w-full bg-[var(--color-charcoal)]" />}
             </div>
@@ -191,9 +191,27 @@ function CubeFace({ story, storyIndex }) {
   );
 }
 
-export default function StoryViewer({ startIndex = 0, onClose }) {
-  const safeStartIndex = Math.max(0, Math.min(startIndex, STORIES.length - 1));
-  const [activeIndex, setActiveIndex] = useState(safeStartIndex);
+export default function StoryViewer({ startAuthorId, onClose }) {
+  // Group stories by author, preserving first-appearance order
+  const storyGroups = useMemo(() => {
+    const groups = [];
+    const seen = new Set();
+    for (const story of STORIES) {
+      if (!seen.has(story.authorId)) {
+        seen.add(story.authorId);
+        groups.push(STORIES.filter(s => s.authorId === story.authorId));
+      }
+    }
+    return groups;
+  }, []);
+
+  const initialPersonIndex = useMemo(() => {
+    const idx = storyGroups.findIndex(g => g[0].authorId === startAuthorId);
+    return idx >= 0 ? idx : 0;
+  }, [storyGroups, startAuthorId]);
+
+  const [personIndex, setPersonIndex] = useState(initialPersonIndex);
+  const [storyIndex, setStoryIndex] = useState(0);
   const [floatingReactions, setFloatingReactions] = useState([]);
   const [reactionCounts, setReactionCounts] = useState(
     STORIES.reduce((accumulator, story) => ({
@@ -215,44 +233,57 @@ export default function StoryViewer({ startIndex = 0, onClose }) {
   const swipedRef = useRef(false);
   const containerRef = useRef(null);
   const skipTransitionRef = useRef(false);
-  const currentStory = STORIES[activeIndex];
+
+  const currentGroup = storyGroups[personIndex];
+  const currentStory = currentGroup[storyIndex];
 
   useEffect(() => {
     if (containerRef.current) setContainerWidth(containerRef.current.offsetWidth);
   }, []);
 
-  useEffect(() => {
-    setActiveIndex(safeStartIndex);
-    setProgressKey((value) => value + 1);
-  }, [safeStartIndex]);
-
   const counts = useMemo(() => reactionCounts[currentStory.id] || {}, [reactionCounts, currentStory.id]);
 
+  // Tap right / auto-advance: within person, then next person, then close
   const goNext = useCallback(() => {
-    setActiveIndex((previous) => {
-      if (previous < STORIES.length - 1) return previous + 1;
+    if (storyIndex < currentGroup.length - 1) {
+      setStoryIndex(s => s + 1);
+    } else if (personIndex < storyGroups.length - 1) {
+      setPersonIndex(p => p + 1);
+      setStoryIndex(0);
+    } else {
       onClose?.();
-      return previous;
-    });
+      return;
+    }
     setShowReplyInput(false);
     setReplySent(false);
-    setProgressKey((value) => value + 1);
-  }, [onClose]);
+    setProgressKey(v => v + 1);
+  }, [storyIndex, currentGroup.length, personIndex, storyGroups.length, onClose]);
 
+  // Tap left: within person, then prev person's last story
   const goPrev = useCallback(() => {
-    setActiveIndex((previous) => Math.max(0, previous - 1));
+    if (storyIndex > 0) {
+      setStoryIndex(s => s - 1);
+    } else if (personIndex > 0) {
+      const prevGroup = storyGroups[personIndex - 1];
+      setPersonIndex(p => p - 1);
+      setStoryIndex(prevGroup.length - 1);
+    } else {
+      return;
+    }
     setShowReplyInput(false);
     setReplySent(false);
-    setProgressKey((value) => value + 1);
-  }, []);
+    setProgressKey(v => v + 1);
+  }, [storyIndex, personIndex, storyGroups]);
 
+  // Auto-advance timer
   useEffect(() => {
     clearTimeout(progressTimerRef.current);
     if (showReplyInput || isAnimating) return undefined;
     progressTimerRef.current = setTimeout(goNext, AUTO_ADVANCE_DELAY);
     return () => clearTimeout(progressTimerRef.current);
-  }, [activeIndex, showReplyInput, isAnimating, goNext]);
+  }, [personIndex, storyIndex, showReplyInput, isAnimating, goNext]);
 
+  // Keyboard arrows = tap equivalent (within person, overflow to next person)
   useEffect(() => {
     const handleKey = (event) => {
       if (isAnimating) return;
@@ -264,6 +295,7 @@ export default function StoryViewer({ startIndex = 0, onClose }) {
     return () => window.removeEventListener("keydown", handleKey);
   }, [goNext, goPrev, onClose, isAnimating]);
 
+  // Swipe/drag handler — x-axis swipes between people
   useEffect(() => {
     const element = containerRef.current;
     if (!element) return undefined;
@@ -289,11 +321,9 @@ export default function StoryViewer({ startIndex = 0, onClose }) {
       }
 
       if (t.axis === "x") {
-        // Drag right (dx>0) → positive angle → cube rotates left → reveals left face (prev)
-        // Drag left (dx<0) → negative angle → cube rotates right → reveals right face (next)
         const goingPrev = dx > 0;
         const goingNext = dx < 0;
-        const hasAdjacent = goingPrev ? activeIndex > 0 : goingNext ? activeIndex < STORIES.length - 1 : false;
+        const hasAdjacent = goingPrev ? personIndex > 0 : goingNext ? personIndex < storyGroups.length - 1 : false;
         const maxAngle = hasAdjacent ? 90 : 10;
         const angle = Math.max(-maxAngle, Math.min(maxAngle, (dx / width) * 90));
         setCubeAngle(angle);
@@ -330,7 +360,7 @@ export default function StoryViewer({ startIndex = 0, onClose }) {
         const angle = (dx / width) * 90;
         const goingPrev = angle > 0;
         const goingNext = angle < 0;
-        const hasAdjacent = goingPrev ? activeIndex > 0 : goingNext ? activeIndex < STORIES.length - 1 : false;
+        const hasAdjacent = goingPrev ? personIndex > 0 : goingNext ? personIndex < storyGroups.length - 1 : false;
 
         if (Math.abs(angle) > 20 && hasAdjacent) {
           setIsAnimating(true);
@@ -338,13 +368,14 @@ export default function StoryViewer({ startIndex = 0, onClose }) {
 
           setTimeout(() => {
             skipTransitionRef.current = true;
-            setActiveIndex((previous) => goingNext ? previous + 1 : previous - 1);
+            setPersonIndex(p => goingNext ? p + 1 : p - 1);
+            setStoryIndex(0);
             setCubeAngle(0);
             setIsAnimating(false);
             setIsDragging(false);
             setShowReplyInput(false);
             setReplySent(false);
-            setProgressKey((value) => value + 1);
+            setProgressKey(v => v + 1);
             requestAnimationFrame(() => { skipTransitionRef.current = false; });
           }, 400);
         } else {
@@ -362,7 +393,7 @@ export default function StoryViewer({ startIndex = 0, onClose }) {
       element.removeEventListener("pointermove", onPointerMove);
       element.removeEventListener("pointerup", onPointerUp);
     };
-  }, [activeIndex, isAnimating, onClose]);
+  }, [personIndex, storyGroups.length, isAnimating, onClose]);
 
   const addReaction = (type) => {
     const config = REACTION_CONFIG[type];
@@ -394,8 +425,8 @@ export default function StoryViewer({ startIndex = 0, onClose }) {
 
   // Cube faces
   const half = containerWidth / 2;
-  const prevStory = activeIndex > 0 ? STORIES[activeIndex - 1] : null;
-  const nextStory = activeIndex < STORIES.length - 1 ? STORIES[activeIndex + 1] : null;
+  const prevPersonGroup = personIndex > 0 ? storyGroups[personIndex - 1] : null;
+  const nextPersonGroup = personIndex < storyGroups.length - 1 ? storyGroups[personIndex + 1] : null;
   const showSideFaces = isDragging || isAnimating;
   const cubeTransition = skipTransitionRef.current ? "none" : isDragging ? "none" : CUBE_TRANSITION;
 
@@ -445,10 +476,10 @@ export default function StoryViewer({ startIndex = 0, onClose }) {
             {/* Progress + header */}
             <div className="pointer-events-none absolute inset-x-0 top-0 z-30 px-4 pt-12">
               <div className="mb-4 flex gap-1.5">
-                {STORIES.map((story, index) => (
+                {currentGroup.map((story, index) => (
                   <div key={story.id} className="h-[3px] flex-1 overflow-hidden rounded-full bg-black/10">
-                    {index < activeIndex && <div className="h-full w-full bg-[var(--color-charcoal)]" />}
-                    {index === activeIndex && (
+                    {index < storyIndex && <div className="h-full w-full bg-[var(--color-charcoal)]" />}
+                    {index === storyIndex && (
                       <motion.div
                         key={progressKey}
                         className="h-full bg-[var(--color-charcoal)]"
@@ -567,8 +598,8 @@ export default function StoryViewer({ startIndex = 0, onClose }) {
             )}
           </div>
 
-          {/* LEFT face — previous story */}
-          {prevStory && showSideFaces && (
+          {/* LEFT face — previous person's first story */}
+          {prevPersonGroup && showSideFaces && (
             <div
               className="absolute inset-0"
               style={{
@@ -576,12 +607,12 @@ export default function StoryViewer({ startIndex = 0, onClose }) {
                 backfaceVisibility: "hidden",
               }}
             >
-              <CubeFace story={prevStory} storyIndex={activeIndex - 1} />
+              <CubeFace story={prevPersonGroup[0]} stories={prevPersonGroup} storyIndex={0} />
             </div>
           )}
 
-          {/* RIGHT face — next story */}
-          {nextStory && showSideFaces && (
+          {/* RIGHT face — next person's first story */}
+          {nextPersonGroup && showSideFaces && (
             <div
               className="absolute inset-0"
               style={{
@@ -589,7 +620,7 @@ export default function StoryViewer({ startIndex = 0, onClose }) {
                 backfaceVisibility: "hidden",
               }}
             >
-              <CubeFace story={nextStory} storyIndex={activeIndex + 1} />
+              <CubeFace story={nextPersonGroup[0]} stories={nextPersonGroup} storyIndex={0} />
             </div>
           )}
         </div>
