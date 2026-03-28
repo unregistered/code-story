@@ -5,7 +5,7 @@ import { STORIES } from "../data";
 
 const AUTO_ADVANCE_DELAY = 8000;
 const FLOAT_LIFETIME = 1300;
-const CUBE_TRANSITION = "transform 0.4s cubic-bezier(.4,.0,.2,1)";
+const CUBE_TRANSITION = "transform 1s cubic-bezier(.25,.1,.25,1)";
 
 const PR_STATUS_CONFIG = {
   MERGED: {
@@ -371,7 +371,7 @@ export default function StoryViewer({ startAuthorId, onClose }) {
             setReplySent(false);
             setProgressKey(v => v + 1);
             requestAnimationFrame(() => { skipTransitionRef.current = false; });
-          }, 400);
+          }, 1000);
         } else {
           setCubeAngle(0);
           setIsDragging(false);
