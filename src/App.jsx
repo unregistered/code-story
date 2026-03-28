@@ -4,11 +4,6 @@ import StoryViewer from "./components/StoryViewer";
 import PostUpdate from "./components/PostUpdate";
 import { REPOS } from "./data";
 
-const shellStyle = {
-  width: "100%",
-  height: "100dvh",
-};
-
 export default function App() {
   const [view, setView] = useState("home");
   const [startAuthorId, setStartAuthorId] = useState(null);
@@ -34,11 +29,8 @@ export default function App() {
   };
 
   return (
-    <div className="flex min-h-svh w-full items-center justify-center bg-[var(--color-shell)]">
-      <div
-        style={shellStyle}
-        className="relative overflow-hidden bg-[var(--color-app-bg)] sm:max-w-[390px] sm:max-h-[844px] sm:h-[844px] sm:rounded-[40px] sm:border-[8px] sm:border-black sm:shadow-[0_25px_60px_rgba(0,0,0,0.55)]"
-      >
+    <div className="flex min-h-svh w-full items-center justify-center bg-[var(--color-app-bg)]">
+      <div className="relative w-full h-dvh max-w-[540px] mx-auto overflow-hidden bg-[var(--color-app-bg)]">
         <TeamConstellation
           repo={repo}
           onRepoChange={handleRepoChange}

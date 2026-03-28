@@ -225,7 +225,7 @@ export default function StoryViewer({ stories, startAuthorId, onClose }) {
   const touchRef = useRef(null);
   const swipedRef = useRef(false);
   const containerRef = useRef(null);
-  const skipTransitionRef = useRef(false);
+  const skipTransitionRef = useRef(true);
 
   const currentGroup = storyGroups[personIndex];
   const currentStory = currentGroup[storyIndex];
@@ -427,7 +427,7 @@ export default function StoryViewer({ stories, startAuthorId, onClose }) {
   const prevPersonGroup = personIndex > 0 ? storyGroups[personIndex - 1] : null;
   const nextPersonGroup = personIndex < storyGroups.length - 1 ? storyGroups[personIndex + 1] : null;
   const showSideFaces = isDragging || isAnimating;
-  const cubeTransition = skipTransitionRef.current ? "none" : isDragging ? "none" : CUBE_TRANSITION;
+  const cubeTransition = skipTransitionRef.current || isDragging ? "none" : isAnimating ? CUBE_TRANSITION : "none";
 
   // Dismiss style (swipe down)
   const dismissActive = isDragging && dismissY > 0;
