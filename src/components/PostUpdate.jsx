@@ -1,13 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Check } from "lucide-react";
+import { X, Check, Sparkles, Loader2, GitMerge } from "lucide-react";
 
 export default function PostUpdate({ onClose, onPosted, prefill, isOpen }) {
-  const [text, setText] = useState(prefill?.text || "");
+  const [text, setText] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [isSummarizing, setIsSummarizing] = useState(false);
+  const prefilled = useRef(false);
+
+  useEffect(() => {
+    if (!isOpen || prefilled.current) return;
+    prefilled.current = true;
+    const content = prefill?.ticket?.description || prefill?.text?.replace(/\*\*/g, "") || "";
+    if (!content) return;
+    let cancelled = false;
+    (async () => {
+      await new Promise((r) => setTimeout(r, 400));
+      for (let i = 0; i < content.length && !cancelled; i++) {
+        await new Promise((r) => setTimeout(r, 8 + Math.random() * 12));
+        setText(content.slice(0, i + 1));
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [isOpen]);
 
   const charLimit = 180;
   const charsLeft = charLimit - text.length;
+
+  const summarize = async () => {
+    setIsSummarizing(true);
+    const summary = "Matrix direct messages now route to the correct room — fixes misdelivered outbound messages in federated setups.";
+    setText("");
+    await new Promise((r) => setTimeout(r, 400));
+    for (let i = 0; i < summary.length; i++) {
+      await new Promise((r) => setTimeout(r, 18 + Math.random() * 22));
+      setText(summary.slice(0, i + 1));
+    }
+    setIsSummarizing(false);
+  };
 
   const handleSubmit = () => {
     if (!text.trim()) return;
@@ -58,6 +88,19 @@ export default function PostUpdate({ onClose, onPosted, prefill, isOpen }) {
             </motion.div>
           ) : (
             <motion.div key="form">
+              {prefill?.ticket && (
+                <div className="mb-4 flex items-start gap-2.5 rounded-2xl border border-[color:rgba(26,24,22,0.06)] bg-[color:rgba(255,255,255,0.5)] px-4 py-3">
+                  <GitMerge size={15} className="mt-0.5 shrink-0 text-[var(--color-sage)]" />
+                  <div className="min-w-0">
+                    <p className="text-[13px] font-semibold text-[var(--color-charcoal)] leading-snug">{prefill.ticket.title}</p>
+                    <span className="mt-0.5 inline-block rounded-full bg-[var(--color-sage)]/15 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[var(--color-sage)]">
+                      {prefill.ticket.status}
+                    </span>
+
+                  </div>
+                </div>
+              )}
+
               <div className="mb-6">
                 <label className="mb-2 block text-xs font-bold uppercase tracking-widest text-[color:rgba(26,24,22,0.4)]">
                   What did you ship today?
@@ -75,6 +118,24 @@ export default function PostUpdate({ onClose, onPosted, prefill, isOpen }) {
                   </span>
                 </div>
               </div>
+
+              {(text.length > 20 || prefill?.ticket?.description) && (
+                <motion.button
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={summarize}
+                  disabled={isSummarizing}
+                  className="flex items-center gap-1.5 rounded-full bg-[var(--color-sage)]/10 px-3.5 py-2 text-xs font-bold text-[var(--color-sage)] disabled:opacity-50"
+                >
+                  {isSummarizing ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <Sparkles size={14} />
+                  )}
+                  {isSummarizing ? "Summarizing…" : "Summarize with Minimax"}
+                </motion.button>
+              )}
 
             </motion.div>
           )}

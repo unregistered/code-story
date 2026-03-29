@@ -97,7 +97,7 @@ const OPENCLAW_PENDING_POSTS = [
   {
     id: 1,
     text: "**Matrix direct messages now route to the correct room** — fixes misdelivered outbound messages in federated setups.",
-    ticket: { title: "fix(matrix): align outbound direct-room selection", status: "MERGED" },
+    ticket: { title: "fix(matrix): align outbound direct-room selection", status: "MERGED", description: "When a user sends a DM in a federated Matrix deployment, the room-selection logic was picking the first room matching the recipient's MXID instead of filtering by the direct-message flag. This caused messages to land in shared group rooms or old invite-only rooms that happened to sort first. The fix adds a `is_direct` predicate to the room resolver so outbound DMs always route to the canonical DM room, falling back to room creation if none exists. Also adds regression tests covering single-homeserver and federated topologies." },
     landedAt: Date.now() - 2 * 60 * 1000,
     autoPostAt: Date.now() + 8 * 60 * 1000,
     aiTag: "important",

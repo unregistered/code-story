@@ -407,7 +407,7 @@ export default function TeamConstellation({ repo, readStories, allMembers, curre
 
   const handleEdit = () => {
     if (!pendingPost) return;
-    onEditPost?.({ text: pendingPost.text });
+    onEditPost?.({ text: pendingPost.text, ticket: pendingPost.ticket });
   };
 
   const handleCancel = () => {
@@ -444,7 +444,7 @@ export default function TeamConstellation({ repo, readStories, allMembers, curre
   };
 
   const handleFeedEdit = (post) => {
-    onEditPost?.({ text: post.text });
+    onEditPost?.({ text: post.text, ticket: post.ticket });
   };
 
   const handlePost = () => {
