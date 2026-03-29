@@ -1,28 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Check, Sparkles, Loader2, GitMerge } from "lucide-react";
 
 export default function PostUpdate({ onClose, onPosted, prefill, isOpen }) {
-  const [text, setText] = useState("");
+  const [text, setText] = useState(prefill?.ticket?.description || prefill?.text?.replace(/\*\*/g, "") || "");
   const [submitted, setSubmitted] = useState(false);
   const [isSummarizing, setIsSummarizing] = useState(false);
-  const prefilled = useRef(false);
-
-  useEffect(() => {
-    if (!isOpen || prefilled.current) return;
-    prefilled.current = true;
-    const content = prefill?.ticket?.description || prefill?.text?.replace(/\*\*/g, "") || "";
-    if (!content) return;
-    let cancelled = false;
-    (async () => {
-      await new Promise((r) => setTimeout(r, 400));
-      for (let i = 0; i < content.length && !cancelled; i++) {
-        await new Promise((r) => setTimeout(r, 8 + Math.random() * 12));
-        setText(content.slice(0, i + 1));
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [isOpen]);
 
   const charLimit = 180;
   const charsLeft = charLimit - text.length;
