@@ -55,9 +55,9 @@ const ONBOARDING_ILLUSTRATIONS = {
     const delays = [0, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45];
     const slumpDelays = [0.6, 1.0, 0.8, 1.4, 1.1, 0.7, 1.6, 0.9, 1.3, 1.2];
     return (
-      <div className="flex flex-col items-center gap-1.5" style={{ height: 120 }}>
+      <div className="flex flex-col items-center justify-center gap-3" style={{ height: 140 }}>
         {[0, 1].map((row) => (
-          <div key={row} className="flex items-center justify-center gap-2.5">
+          <div key={row} className="flex items-center justify-center gap-4">
             {[0, 1, 2, 3, 4].map((col) => {
               const i = row * 5 + col;
               return (
@@ -74,7 +74,7 @@ const ONBOARDING_ILLUSTRATIONS = {
                   }}
                   style={{ originX: 0.5, originY: 1 }}
                 >
-                  <User size={20} strokeWidth={1.5} className="text-[var(--color-charcoal)]" />
+                  <User size={28} strokeWidth={1.5} className="text-[var(--color-charcoal)]" />
                 </motion.div>
               );
             })}
@@ -113,12 +113,12 @@ const ONBOARDING_ILLUSTRATIONS = {
           transition={{
             delay: 1,
             duration: 3.5,
-            times: [0, 0.08, 0.12, 0.16, 0.20, 0.24, 0.28, 0.32, 0.36, 0.85],
+            times: [0, 0.08, 0.10, 0.12, 0.14, 0.16, 0.18, 0.20, 0.22, 0.85],
             repeat: Infinity,
             repeatDelay: 0.5,
           }}
         >
-          <Sparkles size={32} strokeWidth={1.5} className="text-[var(--color-sage)]" />
+          <Sparkles size={32} strokeWidth={1.5} className="text-[var(--color-warning)]" />
         </motion.div>
       </div>
     </div>
