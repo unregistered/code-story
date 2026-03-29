@@ -773,7 +773,7 @@ export default function StoryViewer({ stories, startAuthorId, readStories = [], 
                     if (event.key === "Enter") handleReplySubmit();
                     if (event.key === "Escape") setShowReplyInput(false);
                   }}
-                  placeholder={`Reply to ${currentStory.author.split(" ")[0]}...`}
+                  placeholder="Comment on PR..."
                   className="h-14 flex-1 rounded-full border border-white/50 bg-white/70 px-5 text-base font-medium text-[var(--color-charcoal)] shadow-md backdrop-blur-md placeholder:text-black/30"
                 />
                 <motion.button whileTap={{ scale: 0.92 }} onClick={handleReplySubmit} className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--color-charcoal)]">
@@ -802,7 +802,7 @@ export default function StoryViewer({ stories, startAuthorId, readStories = [], 
         {replySent && (
           <div className="absolute left-6 bottom-28 inline-flex items-center gap-2 rounded-full bg-[var(--color-charcoal)] px-3 py-2 text-xs font-semibold text-white shadow-md">
             <CircleAlert size={14} />
-            Reply sent
+            Comment on PR sent
           </div>
         )}
       </div>
