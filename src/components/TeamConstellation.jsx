@@ -407,12 +407,7 @@ export default function TeamConstellation({ repo, readStories, allMembers, curre
 
   const handleEdit = () => {
     if (!pendingPost) return;
-    onEditPost?.({
-      text: pendingPost.text,
-      attachType: pendingPost.ticket ? "ticket" : pendingPost.pr ? "pr" : null,
-      ticketTitle: pendingPost.ticket?.title || "",
-      ticketStatus: pendingPost.ticket?.status || "IN REVIEW",
-    });
+    onEditPost?.({ text: pendingPost.text });
   };
 
   const handleCancel = () => {
@@ -449,12 +444,7 @@ export default function TeamConstellation({ repo, readStories, allMembers, curre
   };
 
   const handleFeedEdit = (post) => {
-    onEditPost?.({
-      text: post.text,
-      attachType: post.ticket ? "ticket" : post.pr ? "pr" : null,
-      ticketTitle: post.ticket?.title || "",
-      ticketStatus: post.ticket?.status || "IN REVIEW",
-    });
+    onEditPost?.({ text: post.text });
   };
 
   const handlePost = () => {
