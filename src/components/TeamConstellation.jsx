@@ -402,10 +402,6 @@ export default function TeamConstellation({ repo, readStories, allMembers, curre
   }, [undoAction]);
 
   const handleBubbleTap = (member) => {
-    if (member.id === 0 && !activePost) {
-      onEditPost?.(null);
-      return;
-    }
     onMemberTap(member);
   };
 
